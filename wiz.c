@@ -138,7 +138,7 @@ bool check_symbols();
 ////////////////////////////////////////////////////////////////////////////////
 // forth ops
 
-bool dup(void) {
+bool dup_(void) {
   CHECK_STACK_1;
   push(pick(0));
   return true;
@@ -189,7 +189,7 @@ bool rfrom(void) {
   return true;
 }
 
-bool dup2(void) {
+bool dup2_(void) {
   CHECK_STACK_2;
   push(pick(2));
   push(pick(2));
@@ -301,14 +301,14 @@ bool rfetch2(void) {
   return true;
 }
 
-Op ops[] = { { dup, "dup" },
+Op ops[] = { { dup_, "dup" },
              { drop, "drop" },
              { swap, "swap" },
              { over, "over" },
              { rot, "rot" },
              { tor, ">r" },
              { rfrom, "r>" },
-             { dup2, "dup2" },
+             { dup2_, "dup2" },
              { drop2, "drop2" },
              { swap2, "2swap" },
              { over2, "over2" },
