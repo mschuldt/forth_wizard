@@ -83,16 +83,16 @@ static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS,
                                     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef pywizmodule =
+static struct PyModuleDef forthwizmodule =
   {
    PyModuleDef_HEAD_INIT,
-   "forthwiz",
+   "chuckmoore",
    "usage: TODO\n",
    -1,
    wiz_methods
   };
 
-PyMODINIT_FUNC PyInit_forthwiz(void)
+PyMODINIT_FUNC PyInit_chuckmoore(void)
 {
-  return PyModule_Create(&pywizmodule);
+  return PyModule_Create(&forthwizmodule);
 }
