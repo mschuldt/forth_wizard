@@ -2,3 +2,4 @@ test
 build
 *.pyc
 gmon.out
+__pycache__

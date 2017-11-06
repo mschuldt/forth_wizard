@@ -34,7 +34,7 @@ def set_stacks(in_stack, out_stack):
     wizard.set_stack_out([convert(s) for s in out_stack])
 
 def solve_next():
-    return [ ops[ op ] for op in wizard.solve() ]
+    return [ ops[ op-1 ] for op in wizard.solve() ]
 
 def solve(in_stack, out_stack):
     set_stacks(in_stack, out_stack)

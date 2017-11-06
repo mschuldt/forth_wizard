@@ -305,6 +305,7 @@ bool rfetch2(void) {
   return true;
 }
 
+// Note: remember to update corresponding list in forthwiz/__init__.py
 Op ops[] = { { dup_, "dup" },
              { drop, "drop" },
              { swap, "swap" },
@@ -393,12 +394,12 @@ bool verify_code() {
     if( !ops[(int)code->data[i]].fn()
         || noop(i) ){
       skip_code(i);
-      return 0;
+      return false;
     }
     stack_history[i] = list_clone(stack);
     rstack_history[i] = list_clone(rstack);
   }
-  return !rstack->len && list_equal(stack, stack_out);
+  return ( rstack->len == 0 ) && list_equal(stack, stack_out);
 }
 
 void print_solution(){
@@ -454,6 +455,8 @@ void init() {
   if ( initialized ) {
     list_clear(code);
     _push(code,0);
+    list_clear(stack_in);
+    list_clear(stack_out);
     return;
   }
   stack_size=23;
