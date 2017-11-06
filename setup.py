@@ -2,6 +2,13 @@
 
 from distutils.core import setup, Extension
 
+setup(name='forthwiz',
+      packages=['forthwiz'],
+      version='1.0',
+      author='Michael Schuldt',
+      author_email='mbschuldt@gmail.com',
+      install_requires=['chuckmoore'])
+
 setup(name='chuckmoore',
       version='1.0',
       author='Michael Schuldt',
