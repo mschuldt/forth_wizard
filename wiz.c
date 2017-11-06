@@ -140,7 +140,7 @@ bool check_symbols();
 
 bool dup_(void) {
   CHECK_STACK_1;
-  push(pick(0));
+  push(pick(1));
   return true;
 }
 
