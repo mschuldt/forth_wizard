@@ -33,8 +33,8 @@ List **rstack_history;
 List *code;
 List *unique_symbols;
 
-int max_code_length;
-int stack_size;
+int max_code_length = 10;
+int stack_size = 25;
 
 int n_ops;
 
@@ -67,6 +67,10 @@ List* list_clone(List *in) {
   }
   s->len = len;
   return s;
+}
+
+void list_clear(List *list) {
+  list->len = 0;
 }
 
 static inline void _push(List* s, int v) {
@@ -404,15 +408,14 @@ void print_solution(){
   printf("\n");
 }
 
-void solve() {
+bool solve_next() {
   while( code->len <= max_code_length ) {
     if( verify_code() ) {
-      print_solution();
-      return;
+      return true;
     }
     next();
   }
-  printf("no solutions\n");
+  return false;
 }
 
 void count_ops() {
@@ -422,41 +425,54 @@ void count_ops() {
   }
 }
 
-int test () {
-  stack_in = new_list(stack_size);
-  stack_out = new_list(stack_size);
-
-  _push(stack_in, 1);
-  _push(stack_in, 2);
-  _push(stack_in, 3);
-  _push(stack_in, 4);
-  _push(stack_in, 5);
-
-  _push(stack_out, 5);
-  _push(stack_out, 1);
-  _push(stack_out, 5);
-  _push(stack_out, 3);
-  _push(stack_out, 4);
-
-  collect_unique_symbols();
-
-  solve();
-  next(); solve();
-  next(); solve();
-  next(); solve();
-  next(); solve();
-  // 7.172 secs
+void set_stack_size(int n){
+  stack_size = n;
 }
 
-int main(int argc, char **argv) {
+void set_stack_in( int *values, int len ) {
+
+  for (int i = 0; i < len; i++) {
+    _push(stack_in, values[i]);
+  }
+  //printf("in stack\n");
+  //list_print(stack_in);
+}
+
+void set_stack_out( int *values, int len ) {
+
+  for (int i = 0; i < len; i++) {
+    _push(stack_out, values[i]);
+  }
+  collect_unique_symbols();
+  //printf("out stack\n");
+  //list_print(stack_out);
+}
+
+bool initialized = false;
+
+void init() {
+  if ( initialized ) {
+    list_clear(code);
+    _push(code,0);
+    return;
+  }
   stack_size=23;
   max_code_length = 10;
+  stack_in = new_list(stack_size);
+  stack_out = new_list(stack_size);
   stack_history = (List**)calloc(sizeof(List*), max_code_length);
   rstack_history = (List**)calloc(sizeof(List*), max_code_length);
   count_ops();
 
   code = new_list(max_code_length);
   _push(code,0);
+  initialized = true;
+}
 
-  test();
+bool solve() {
+  if (!solve_next()) {
+    return false;
+  }
+  next();
+  return true;
 }
