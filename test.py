@@ -25,6 +25,7 @@ def runtests():
     test([1, 2, 3], [1, 3, 2, 3] , ['tuck'])
     test([1, 2, 3, 4], [1, 4, 2, 3] , ['-rot'])
     #TODO: >r, r>, 2>r, 2r>, rfetch2, rfetch
+    test(['a', 'b'], ['a', 'b'], [])
 
 if __name__ == '__main__':
     runtests()

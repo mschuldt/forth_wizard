@@ -64,7 +64,7 @@ static PyObject* wiz_solve(PyObject* self) {
       exit(1);
     }
   }
-  return Py_BuildValue("i", 0);
+  return Py_BuildValue("i", -1);
 }
 
 static PyObject* wiz_init(PyObject* self) {

@@ -33,8 +33,8 @@ List **rstack_history;
 List *code;
 List *unique_symbols;
 
-int max_code_length = 10;
-int stack_size = 25;
+int max_code_length = 15;
+int stack_size = 30;
 
 int n_ops;
 
@@ -410,6 +410,10 @@ void print_solution(){
 }
 
 bool solve_next() {
+  if (list_equal(stack_in, stack_out)){
+    list_clear(code);
+    return true;
+  }
   while( code->len <= max_code_length ) {
     if( verify_code() ) {
       return true;
@@ -476,6 +480,8 @@ bool solve() {
   if (!solve_next()) {
     return false;
   }
-  next();
+  if( code->len > 0 ) {
+    next();
+  }
   return true;
 }
