@@ -10,18 +10,18 @@ ops = [ 'dup',
         'rot',
         '>r',
         'r>',
-        'dup2',
-        'drop2',
+        '2dup',
+        '2drop',
         '2swap',
-        'over2',
-        'rot2',
+        '2over',
+        '2rot',
         'nip',
         'tuck',
         '-rot',
-        'rfetch',
+        'r@',
         '2>r',
         '2r>',
-        'rfetch2' ]
+        '2r@' ]
 
 def convert_stacks(in_stack, out_stack):
     symbols = {}
