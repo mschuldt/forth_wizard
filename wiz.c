@@ -364,6 +364,15 @@ void collect_unique_symbols() {
   }
 }
 
+void validate_stacks() {
+  for(int i = 0; i < stack_out->len; i++ ) {
+    if ( !stack_member(stack_in, stack_out->data[i] ) ) {
+      printf("ERROR: output stack value not present in input stack\n");
+      exit(1);
+    }
+  }
+}
+
 // check that all symbols are present in at least one of the stacks
 bool check_symbols()
 {
@@ -449,6 +458,7 @@ void set_stack_out( int *values, int len ) {
     _push(stack_out, values[i]);
   }
   collect_unique_symbols();
+  validate_stacks();
   //printf("out stack\n");
   //list_print(stack_out);
 }
