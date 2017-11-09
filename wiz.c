@@ -31,6 +31,7 @@ List **stack_history;
 List **rstack_history;
 
 List *code;
+List *solution;
 List *unique_symbols;
 
 int max_code_length = 15;
@@ -67,6 +68,15 @@ List* list_clone(List *in) {
   }
   s->len = len;
   return s;
+}
+
+void list_copy(List *to, List *from) {
+  assert( from->len <= to->size, "destination list is too small" );
+  int len = from->len;
+  to->len = len;
+  for(int i = 0; i < len; i++){
+    to->data[i] = from->data[i];
+  }
 }
 
 void list_clear(List *list) {
@@ -411,7 +421,7 @@ bool verify_code() {
   return ( rstack->len == 0 ) && list_equal(stack, stack_out);
 }
 
-void print_solution(){
+void print_solution() {
   for( int i=0; i< code->len; i++){
     printf("%s ", ops[(int)code->data[i]].name);
   }
@@ -471,6 +481,7 @@ void init() {
     _push(code,0);
     list_clear(stack_in);
     list_clear(stack_out);
+    list_clear(solution);
     return;
   }
   stack_size=23;
@@ -482,6 +493,7 @@ void init() {
   count_ops();
 
   code = new_list(max_code_length);
+  solution = new_list(max_code_length);
   _push(code,0);
   initialized = true;
 }
@@ -490,6 +502,7 @@ bool solve() {
   if (!solve_next()) {
     return false;
   }
+  list_copy(solution, code);
   if( code->len > 0 ) {
     next();
   }

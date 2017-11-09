@@ -1,26 +1,26 @@
 import chuckmoore as wizard
 
-ops = [ "dup",
-        "drop",
-        "swap",
-        "over",
-        "rot",
-        ">r",
-        "r>",
-        "dup2",
-        "drop2",
-        "2swap",
-        "over2",
-        "rot2",
-        "nip",
-        "tuck",
-        "-rot",
-        "rfetch",
-        "2>r",
-        "2r>",
-        "rfetch2" ]
 
 def set_stacks(in_stack, out_stack):
+ops = [ 'dup',
+        'drop',
+        'swap',
+        'over',
+        'rot',
+        '>r',
+        'r>',
+        'dup2',
+        'drop2',
+        '2swap',
+        'over2',
+        'rot2',
+        'nip',
+        'tuck',
+        '-rot',
+        'rfetch',
+        '2>r',
+        '2r>',
+        'rfetch2' ]
     symbols = {}
     counter = 0
     def convert(symbol):
@@ -39,7 +39,7 @@ def solve_next():
         return []
     if code == -1:
         return None
-    return [ ops[ op-1 ] for op in code ]
+    return [ ops[ op ] for op in code ]
 
 def solve(in_stack, out_stack):
     set_stacks(in_stack, out_stack)

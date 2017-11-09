@@ -45,7 +45,7 @@ static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
 }
 
 static PyObject* wiz_solve(PyObject* self) {
-  int* d = code->data;
+  int* d = solution->data;
   if (solve()){
     switch(code->len) {
       //TODO: how to construct a variable sized tuple
