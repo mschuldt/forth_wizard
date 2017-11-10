@@ -24,7 +24,7 @@ static PyObject* wiz_set_stack_in(PyObject* self, PyObject* args) {
   }
 
   long len = PyList_Size(tuple);
-  int *in_stack = get_stack(tuple, len);
+  int *in_stack = get_stack(tuple, len); //TODO: push values on stack here, don't malloc
   set_stack_in(in_stack, len);
   free(in_stack);
   return Py_BuildValue("i", 1);
@@ -44,27 +44,41 @@ static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
   return Py_BuildValue("i", 1);
 }
 
+PyObject* build_tuple(int *d, int len) {
+  switch(len) {
+    //TODO: how to construct a variable sized tuple
+  case 0: return Py_BuildValue("");
+  case 1: return Py_BuildValue("(i)", d[0]);
+  case 2: return Py_BuildValue("(i,i)", d[0], d[1]);
+  case 3: return Py_BuildValue("(i,i,i)", d[0], d[1], d[2]);
+  case 4: return Py_BuildValue("(i,i,i,i)", d[0], d[1], d[2], d[3]);
+  case 5: return Py_BuildValue("(i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4]);
+  case 6: return Py_BuildValue("(i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5]);
+  case 7: return Py_BuildValue("(i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6]);
+  case 8: return Py_BuildValue("(i,i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]);
+  case 9: return Py_BuildValue("(i,i,i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8]);
+  case 10: return Py_BuildValue("(i,i,i,i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9]);
+  case 11: return Py_BuildValue("(i,i,i,i,i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], d[10]);
+  case 12: return Py_BuildValue("(i,i,i,i,i,i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], d[10], d[11]);
+  default:
+    printf("stack size >13 unimplemented");
+    exit(1);
+  }
+}
+
 static PyObject* wiz_solve(PyObject* self) {
-  int* d = solution->data;
-  if (solve()){
-    switch(code->len) {
-      //TODO: how to construct a variable sized tuple
-    case 0: return Py_BuildValue("");
-    case 1: return Py_BuildValue("(i)", d[0]);
-    case 2: return Py_BuildValue("(i,i)", d[0], d[1]);
-    case 3: return Py_BuildValue("(i,i,i)", d[0], d[1], d[2]);
-    case 4: return Py_BuildValue("(i,i,i,i)", d[0], d[1], d[2], d[3]);
-    case 5: return Py_BuildValue("(i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4]);
-    case 6: return Py_BuildValue("(i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5]);
-    case 7: return Py_BuildValue("(i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6]);
-    case 8: return Py_BuildValue("(i,i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]);
-    case 9: return Py_BuildValue("(i,i,i,i,i,i,i,i,i)", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8]);
-    default:
-      printf("solution size >9 unimplemented");
-      exit(1);
-    }
+  if (solve()) {
+    return build_tuple(solution->data, solution->len);
   }
   return Py_BuildValue("i", -1);
+}
+
+static PyObject* wiz_get_return_stack(PyObject* self)  {
+  return build_tuple(rstack->data, rstack->len);
+}
+
+static PyObject* wiz_get_stack(PyObject* self)  {
+  return build_tuple(stack->data, stack->len);
 }
 
 static PyObject* wiz_init(PyObject* self) {
@@ -79,7 +93,8 @@ static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS,
                                     {"set_stack_out", (PyCFunction)wiz_set_stack_out, METH_VARARGS, todo_docs},
                                     {"solve", (PyCFunction)wiz_solve, METH_NOARGS, todo_docs},
                                     {"set_stack_size", (PyCFunction)wiz_set_stack_size, METH_O, todo_docs},
-
+                                    {"get_stack", (PyCFunction)wiz_get_stack, METH_NOARGS, todo_docs},
+                                    {"get_return_stack", (PyCFunction)wiz_get_return_stack, METH_NOARGS, todo_docs},
                                     {NULL, NULL, 0, NULL}
 };
 
