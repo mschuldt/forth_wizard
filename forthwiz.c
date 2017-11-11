@@ -44,7 +44,7 @@ static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
   return Py_BuildValue("i", 1);
 }
 
-PyObject* build_tuple(int *d, int len) {
+static PyObject* build_tuple(char *d, int len) {
   switch(len) {
     //TODO: how to construct a variable sized tuple
   case 0: return Py_BuildValue("");

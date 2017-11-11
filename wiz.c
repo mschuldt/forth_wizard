@@ -12,7 +12,7 @@ void assert(bool x, char *msg){
 }
 
 typedef struct List {
-  int *data;
+  char *data;
   int len;
   int size;
 } List;
@@ -41,7 +41,7 @@ int n_ops;
 
 List* new_list(int size) {
   List* stack = (List*)calloc(sizeof(List), 1);
-  stack->data = (int*)calloc(sizeof(int), size);
+  stack->data = (char*)calloc(sizeof(char), size);
   stack->size = size;
   stack->len = 0;
   return stack;
@@ -83,16 +83,16 @@ void list_clear(List *list) {
   list->len = 0;
 }
 
-static inline void _push(List* s, int v) {
+static inline void _push(List* s, char v) {
   assert(s->len < s->size, "stack overflow");
   s->data[ s->len ] = v;
   s->len++;
 }
 
-static inline int _pop(List* s) {
+static inline char _pop(List* s) {
   assert(s->len >= 0, "stack underflow");
   int len = s->len - 1;
-  int ret = s->data[len];
+  char ret = s->data[len];
   s->len = len;
   return ret;
 }
@@ -106,7 +106,7 @@ static inline void rpush(int v) { _push(rstack, v); }
 static inline int pop() { return _pop(stack); }
 static inline int rpop() { return _pop(rstack); }
 
-bool member(unsigned int *s, unsigned int len, int n) {
+bool member(char *s, unsigned int len, char n) {
   for(int i = 0; i < len; i++) {
     if( s[i] == n) {
       return true;
@@ -115,11 +115,11 @@ bool member(unsigned int *s, unsigned int len, int n) {
   return false;
 }
 
-static inline bool stack_member(List* s, int n) {
+static inline bool stack_member(List* s, char n) {
   return member(s->data, s->len, n);
 }
 
-void unshift( List *s, int v ) {
+void unshift( List *s, char v ) {
   assert( s->len < s->size, "unshift: no room");
   for( int i=s->len-1; i >= 0; i--) {
     s->data[i+1] = s->data[i];
@@ -167,8 +167,8 @@ bool drop(void) {
 
 bool swap(void) {
   CHECK_STACK_2;
-  int n1 = pop();
-  int n2 = pop();
+  char n1 = pop();
+  char n2 = pop();
   push(n1);
   push(n2);
   return true;
@@ -182,9 +182,9 @@ bool over(void) {
 
 bool rot(void) {
   CHECK_STACK_3;
-  int n1 = pop();
-  int n2 = pop();
-  int n3 = pop();
+  char n1 = pop();
+  char n2 = pop();
+  char n3 = pop();
   push(n2);
   push(n1);
   push(n3);
@@ -219,10 +219,10 @@ bool drop2(void) {
 
 bool swap2(void) {
   CHECK_STACK_4;
-  int n1 = pop();
-  int n2 = pop();
-  int n3 = pop();
-  int n4 = pop();
+  char n1 = pop();
+  char n2 = pop();
+  char n3 = pop();
+  char n4 = pop();
   push(n2);
   push(n1);
   push(n4);
@@ -239,12 +239,12 @@ bool over2(void) {
 
 bool rot2(void) {
   CHECK_STACK_6;
-  int n1 = pop();
-  int n2 = pop();
-  int n3 = pop();
-  int n4 = pop();
-  int n5 = pop();
-  int n6 = pop();
+  char n1 = pop();
+  char n2 = pop();
+  char n3 = pop();
+  char n4 = pop();
+  char n5 = pop();
+  char n6 = pop();
   push(n4);
   push(n3);
   push(n2);
@@ -256,7 +256,7 @@ bool rot2(void) {
 
 bool nip(void) {
   CHECK_STACK_2;
-  int n = pop();
+  char n = pop();
   pop();
   push(n);
   CHECK_SYMS;
@@ -265,8 +265,8 @@ bool nip(void) {
 
 bool tuck(void) {
   CHECK_STACK_2;
-  int n1 = pop();
-  int n2 = pop();
+  char n1 = pop();
+  char n2 = pop();
   push(n1);
   push(n2);
   push(n1);
@@ -275,9 +275,9 @@ bool tuck(void) {
 
 bool mrot(void) {
   CHECK_STACK_3;
-  int n1 = pop();
-  int n2 = pop();
-  int n3 = pop();
+  char n1 = pop();
+  char n2 = pop();
+  char n3 = pop();
   push(n1);
   push(n3);
   push(n2);
@@ -292,8 +292,8 @@ bool rfetch(void) {
 
 bool tor2(void) {
   CHECK_STACK_2;
-  int n1 = pop();
-  int n2 = pop();
+  char n1 = pop();
+  char n2 = pop();
   rpush(n2);
   rpush(n1);
   return true;
@@ -301,8 +301,8 @@ bool tor2(void) {
 
 bool rfrom2(void) {
   CHECK_RSTACK_2;
-  int n1 = rpop();
-  int n2 = rpop();
+  char n1 = rpop();
+  char n2 = rpop();
   push(n2);
   push(n1);
   return true;
@@ -410,7 +410,7 @@ bool verify_code() {
   rstack = new_list(10);
 
   for(int i = 0; i < code->len; i++) {
-    if( !ops[(int)code->data[i]].fn()
+    if( !ops[code->data[i]].fn()
         || noop(i) ){
       skip_code(i);
       return false;
@@ -423,7 +423,7 @@ bool verify_code() {
 
 void print_solution() {
   for( int i=0; i< code->len; i++){
-    printf("%s ", ops[(int)code->data[i]].name);
+    printf("%s ", ops[(char)code->data[i]].name);
   }
   printf("\n");
 }
