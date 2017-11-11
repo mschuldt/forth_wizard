@@ -6,14 +6,12 @@ static PyObject* wiz_set_stack_size(PyObject* self, PyObject* size) {
   return Py_BuildValue("i", stack_size);
 }
 
-int* get_stack(PyObject *tuple, long len) {
-
-  int *stack = (int*)calloc(sizeof(int), len);
-
+static void copy_to_list(PyObject *tuple, List *list) {
+  long len = PyList_Size(tuple);
+  list_clear(list);
   for(int i = 0; i < len; i++){
-    stack[i] = PyLong_AsLong(PyList_GetItem(tuple, i));
+    _push(list, (char) PyLong_AsLong(PyList_GetItem(tuple, i)));
   }
-  return stack;
 }
 
 static PyObject* wiz_set_stack_in(PyObject* self, PyObject* args) {
@@ -22,11 +20,7 @@ static PyObject* wiz_set_stack_in(PyObject* self, PyObject* args) {
   if (! PyArg_ParseTuple( args, "O", &tuple)) {
     return NULL;
   }
-
-  long len = PyList_Size(tuple);
-  int *in_stack = get_stack(tuple, len); //TODO: push values on stack here, don't malloc
-  set_stack_in(in_stack, len);
-  free(in_stack);
+  copy_to_list(tuple, stack_in);
   return Py_BuildValue("i", 1);
 }
 
@@ -36,11 +30,7 @@ static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
   if (! PyArg_ParseTuple( args, "O", &tuple)) {
     return NULL;
   }
-
-  long len = PyList_Size(tuple);
-  int *out_stack = get_stack(tuple, len);
-  set_stack_out(out_stack, len);
-  free(out_stack);
+  copy_to_list(tuple, stack_out);
   return Py_BuildValue("i", 1);
 }
 
