@@ -364,9 +364,8 @@ void skip_code(int n) {
 }
 
 void collect_unique_symbols() {
+  list_clear(unique_symbols);
   int len = stack_out->len;
-  unique_symbols = new_list(len);
-
   for(int i = 0; i < len; i++) {
     if( !stack_member(unique_symbols, stack_out->data[i])) {
       list_push(unique_symbols, stack_out->data[i]);
@@ -490,6 +489,7 @@ void init() {
   stack_out = new_list(stack_size);
   stack = new_list(stack_size);
   rstack = new_list(stack_size);
+  unique_symbols = new_list(stack_size);
   stack_history = (List**)calloc(sizeof(List*), max_code_length);
   rstack_history = (List**)calloc(sizeof(List*), max_code_length);
   for(int i = 0; i < max_code_length; i++) {

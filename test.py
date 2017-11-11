@@ -26,6 +26,9 @@ def runtests():
     test([1, 2, 3, 4], [1, 4, 2, 3] , ['-rot'])
     #TODO: >r, r>, 2>r, 2r>, rfetch2, rfetch
     test(['a', 'b'], ['a', 'b'], [])
+    test(['a', '+_arg1'], ['+_arg1', 'a', 'a'], ['swap', 'dup'])
+    test( ['a', 'b'],['a', 'b', 'a', 'b'], ['2dup'] )
+    #test(['x', 'y'], ['x','error', 'y'], ['swap', 'dup'])
 
 if __name__ == '__main__':
     runtests()
