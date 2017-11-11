@@ -1,12 +1,40 @@
-Finds the optimal sequence of forth instructions needed for a given stack manipulation.
+The Forth Wizard finds the shortest sequence of forth instructions needed for a given stack manipulation.
 
-build and install:
+It is written in C and provides a Python3 module. Tested only on Ubuntu.
 
-    ./make.sh
+Run ~./make.sh~ to build and install, requires package python3-dev to build.
 
-Requires python3-dev to build.
+Usage:
+#+BEGIN_SRC python
+  $ python3
+  >>> import forthwiz
+  >>> forthwiz.solve( ['a', 'b'], ['b', 'a', 'a'] )
+  ['swap', 'dup']
+#+END_SRC
+~solve~ takes two lists describing the input and output states of the data stack.
+The items in those lists may be any hashable type.
 
-See wiz_test.py and  wiz_test.c for example usage.
+To get multiple solutions specify the input and output stacks with ~set_stacks~
+and use ~solve_next~ to get the next solution in the sequence:
+#+BEGIN_SRC python
+  >>> forthwiz.set_stacks( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> forthwiz.solve_next()
+  ['swap', 'dup']
+  >>> forthwiz.solve_next()
+  ['over', 'rot']
+  >>> forthwiz.solve_next()
+  ['swap', '2dup', 'nip']
+#+END_SRC
+
+By default calls to ~solve~ will cache the results in the file =forth_wizard_cache.txt=
+To disable caching set the optional parameter ~use_cache~ to False.
+~solve_next~ does not utilize the cache.
 
 
-Originally translated from:  http://sovietov.com/app/forthwiz.html
+See =wiz_test.py=, =wiz_test.c=, and =test.py= for more usage examples.
+
+
+Supported instructions: dup drop swap over rot >r r> 2dup 2drop 2swap 2over 2rot nip tuck -rot r@ 2>r 2r> 2r@
+
+
+Originally translated from: http://sovietov.com/app/forthwiz.html
