@@ -3,3 +3,4 @@ build
 *.pyc
 gmon.out
 __pycache__
+forth_wizard_cache.txt
