@@ -406,8 +406,8 @@ bool noop(int n) {
 }
 
 bool verify_code() {
-  stack = list_clone(stack_in);
-  rstack = new_list(10);
+  list_copy(stack, stack_in);
+  list_clear(rstack);
 
   for(int i = 0; i < code->len; i++) {
     if( !ops[code->data[i]].fn()
@@ -415,8 +415,8 @@ bool verify_code() {
       skip_code(i);
       return false;
     }
-    stack_history[i] = list_clone(stack);
-    rstack_history[i] = list_clone(rstack);
+    list_copy(stack_history[i], stack);
+    list_copy(rstack_history[i], rstack);
   }
   return ( rstack->len == 0 ) && list_equal(stack, stack_out);
 }
@@ -488,8 +488,14 @@ void init() {
   max_code_length = 10;
   stack_in = new_list(stack_size);
   stack_out = new_list(stack_size);
+  stack = new_list(stack_size);
+  rstack = new_list(stack_size);
   stack_history = (List**)calloc(sizeof(List*), max_code_length);
   rstack_history = (List**)calloc(sizeof(List*), max_code_length);
+  for(int i = 0; i < max_code_length; i++) {
+      stack_history[i] = new_list(stack_size);
+      rstack_history[i] = new_list(stack_size);
+  }
   count_ops();
 
   code = new_list(max_code_length);
