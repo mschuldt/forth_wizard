@@ -83,13 +83,13 @@ void list_clear(List *list) {
   list->len = 0;
 }
 
-static inline void _push(List* s, char v) {
+static inline void list_push(List* s, char v) {
   assert(s->len < s->size, "stack overflow");
   s->data[ s->len ] = v;
   s->len++;
 }
 
-static inline char _pop(List* s) {
+static inline char list_pop(List* s) {
   assert(s->len >= 0, "stack underflow");
   int len = s->len - 1;
   char ret = s->data[len];
@@ -100,11 +100,11 @@ static inline char _pop(List* s) {
 static inline int pick(int i) { return stack->data[stack->len - i ]; }
 static inline int rpick(int i) { return rstack->data[rstack->len - i ]; }
 
-static inline void push(int v) { _push(stack, v); }
-static inline void rpush(int v) { _push(rstack, v); }
+static inline void push(int v) { list_push(stack, v); }
+static inline void rpush(int v) { list_push(rstack, v); }
 
-static inline int pop() { return _pop(stack); }
-static inline int rpop() { return _pop(rstack); }
+static inline int pop() { return list_pop(stack); }
+static inline int rpop() { return list_pop(rstack); }
 
 bool member(char *s, unsigned int len, char n) {
   for(int i = 0; i < len; i++) {
@@ -369,7 +369,7 @@ void collect_unique_symbols() {
 
   for(int i = 0; i < len; i++) {
     if( !stack_member(unique_symbols, stack_out->data[i])) {
-      _push(unique_symbols, stack_out->data[i]);
+      list_push(unique_symbols, stack_out->data[i]);
     }
   }
 }
@@ -456,7 +456,7 @@ void set_stack_size(int n){
 void set_stack_in( int *values, int len ) {
 
   for (int i = 0; i < len; i++) {
-    _push(stack_in, values[i]);
+    list_push(stack_in, values[i]);
   }
   //printf("in stack\n");
   //list_print(stack_in);
@@ -465,7 +465,7 @@ void set_stack_in( int *values, int len ) {
 void set_stack_out( int *values, int len ) {
 
   for (int i = 0; i < len; i++) {
-    _push(stack_out, values[i]);
+    list_push(stack_out, values[i]);
   }
   collect_unique_symbols();
   validate_stacks();
@@ -478,7 +478,7 @@ bool initialized = false;
 void init() {
   if ( initialized ) {
     list_clear(code);
-    _push(code,0);
+    list_push(code,0);
     list_clear(stack_in);
     list_clear(stack_out);
     list_clear(solution);
@@ -494,7 +494,7 @@ void init() {
 
   code = new_list(max_code_length);
   solution = new_list(max_code_length);
-  _push(code,0);
+  list_push(code,0);
   initialized = true;
 }
 

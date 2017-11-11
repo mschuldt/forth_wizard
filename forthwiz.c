@@ -10,7 +10,7 @@ static void copy_to_list(PyObject *tuple, List *list) {
   long len = PyList_Size(tuple);
   list_clear(list);
   for(int i = 0; i < len; i++){
-    _push(list, (char) PyLong_AsLong(PyList_GetItem(tuple, i)));
+    list_push(list, (char) PyLong_AsLong(PyList_GetItem(tuple, i)));
   }
 }
 

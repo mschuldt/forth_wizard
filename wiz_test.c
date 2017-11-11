@@ -10,17 +10,17 @@ void next_solution() {
 }
 
 int test () {
-  _push(stack_in, 1);
-  _push(stack_in, 2);
-  _push(stack_in, 3);
-  _push(stack_in, 4);
-  _push(stack_in, 5);
+  list_push(stack_in, 1);
+  list_push(stack_in, 2);
+  list_push(stack_in, 3);
+  list_push(stack_in, 4);
+  list_push(stack_in, 5);
 
-  _push(stack_out, 5);
-  _push(stack_out, 1);
-  _push(stack_out, 5);
-  _push(stack_out, 3);
-  _push(stack_out, 4);
+  list_push(stack_out, 5);
+  list_push(stack_out, 1);
+  list_push(stack_out, 5);
+  list_push(stack_out, 3);
+  list_push(stack_out, 4);
 
   collect_unique_symbols();
 
@@ -31,5 +31,5 @@ int test () {
 
 int main(int argc, char **argv) {
   init();
-  test();   // 5.721 secs
+  test();   // 0.877 secs
 }
