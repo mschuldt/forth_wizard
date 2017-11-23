@@ -91,6 +91,11 @@ static PyObject* wiz_reset_solver(PyObject* self) {
   return Py_BuildValue("i", 0);
 }
 
+static PyObject* wiz_verify(PyObject* self) {
+  bool ok = verify_code();
+  return Py_BuildValue("i", ok);
+}
+
 static char todo_docs[] = "TODO\n";
 
 static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS, todo_docs},
@@ -103,6 +108,7 @@ static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS,
                                     {"add_op", (PyCFunction)wiz_add_op, METH_O, todo_docs},
                                     {"reset", (PyCFunction)wiz_reset, METH_NOARGS, todo_docs},
                                     {"reset_solver", (PyCFunction)wiz_reset_solver, METH_NOARGS, todo_docs},
+                                    {"verify", (PyCFunction)wiz_verify, METH_NOARGS, todo_docs},
                                     {NULL, NULL, 0, NULL}
 };
 
