@@ -33,6 +33,9 @@ pick_ops =  [ '3pick',
               '5pick',
               '6pick'
 ]
+
+n_ops = 0 # ops added to solver
+
 def convert_stacks(in_stack, out_stack):
     symbols = {}
     counter = 0
@@ -60,6 +63,8 @@ def set_stacks(in_stack, out_stack):
     wizard.set_stack_out(s_out)
 
 def solve_next():
+    if n_ops == 0:
+        add_all_ops()
     code = wizard.solve()
     if code is None:
         return []
@@ -81,15 +86,21 @@ def convert_code(code):
     return ret
 
 def add_pick_ops():
+    global n_ops
+    n_ops += len(pick_ops)
     for o in pick_ops:
         wizard.add_op(ops.index(o))
 
 def add_none_pick_ops():
+    global n_ops
     for o in ops:
         if o not in pick_ops:
+            n_ops += 1
             wizard.add_op(ops.index(o))
 
 def add_all_ops():
+    global n_ops
+    n_ops += len(ops)
     for o in ops:
         wizard.add_op(ops.index(o))
 
