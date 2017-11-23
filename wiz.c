@@ -37,7 +37,7 @@ List *unique_symbols;
 int max_code_length = 15;
 int stack_size = 30;
 
-int n_ops;
+int max_ops;
 
 List* new_list(int size) {
   List* stack = (List*)calloc(sizeof(List), 1);
@@ -365,11 +365,25 @@ Op ops[] = { { dup_, "dup" },
              { pick6, "6pick" },
              { NULL, NULL }};
 
+typedef bool (*op_fn_t)(void);
+op_fn_t *_ops;
+
+char n_ops_used;
+
+bool add_op(char op) {
+  if (op > max_ops) {
+    return false;
+  }
+
+  _ops[n_ops_used++] = ops[op].fn;
+  printf("added op: %s\n", ops[op].name);
+  return true;
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 void next() {
   int i = code->len - 1;
-  int max = n_ops - 1;
+  int max = n_ops_used - 1;
 
   code->data[i]++;
 
@@ -384,7 +398,7 @@ void next() {
 }
 
 void skip_code(int n) {
-  int max = n_ops - 1;
+  int max = n_ops_used - 1;
 
   for (int i=n+1; i < code->len; i++) {
     code->data[i] = max;
@@ -437,7 +451,7 @@ bool verify_code() {
   list_clear(rstack);
 
   for(int i = 0; i < code->len; i++) {
-    if( !ops[code->data[i]].fn()
+    if( !_ops[code->data[i]]()
         || noop(i) ){
       skip_code(i);
       return false;
@@ -470,9 +484,9 @@ bool solve_next() {
 }
 
 void count_ops() {
-  n_ops=0;
-  while (ops[n_ops].fn != NULL) {
-    n_ops++;
+  max_ops=0;
+  while (ops[max_ops].fn != NULL) {
+    max_ops++;
   }
 }
 
@@ -524,7 +538,10 @@ void init() {
       stack_history[i] = new_list(stack_size);
       rstack_history[i] = new_list(stack_size);
   }
-  count_ops();
+
+  count_ops(); //sets max_ops
+  _ops = (op_fn_t*)calloc(sizeof(bool (*)(void)), max_ops);
+  n_ops_used = 0;
 
   code = new_list(max_code_length);
   solution = new_list(max_code_length);

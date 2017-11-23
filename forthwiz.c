@@ -76,6 +76,10 @@ static PyObject* wiz_init(PyObject* self) {
   return Py_BuildValue("i", 0);
 }
 
+static PyObject* wiz_add_op(PyObject* self, PyObject* op) {
+  char o = PyLong_AsLong(op);
+  return Py_BuildValue("i", add_op(o));
+}
 static char todo_docs[] = "TODO\n";
 
 static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS, todo_docs},
@@ -85,6 +89,7 @@ static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS,
                                     {"set_stack_size", (PyCFunction)wiz_set_stack_size, METH_O, todo_docs},
                                     {"get_stack", (PyCFunction)wiz_get_stack, METH_NOARGS, todo_docs},
                                     {"get_return_stack", (PyCFunction)wiz_get_return_stack, METH_NOARGS, todo_docs},
+                                    {"add_op", (PyCFunction)wiz_add_op, METH_O, todo_docs},
                                     {NULL, NULL, 0, NULL}
 };
 
