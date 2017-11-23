@@ -3,7 +3,7 @@
 import forthwiz as wiz
 
 def test(in_stack, out_stack, expected):
-    result = wiz.solve( in_stack, out_stack )
+    result = wiz.solve( in_stack, out_stack, use_cache=False )
     if result != expected:
         print( 'FAILED: in: {}, out: {}'.format( in_stack, out_stack ))
         print( ' want: ', expected)
