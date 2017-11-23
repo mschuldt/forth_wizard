@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gcc wiz_test.c -g -O3 -o test
+gcc example.c -g -O3 -o example
 
 rm -rf build
 
