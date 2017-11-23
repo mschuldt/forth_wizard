@@ -470,6 +470,10 @@ void print_solution() {
 }
 
 bool solve_next() {
+  if (!n_ops_used){
+    printf("Error: calling solve before adding ops\n");
+    exit(1);
+  }
   if (list_equal(stack_in, stack_out)){
     list_clear(code);
     return true;
