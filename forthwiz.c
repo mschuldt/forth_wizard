@@ -1,4 +1,4 @@
-#include "wiz.c"
+#include "solver.c"
 #include <Python.h>
 
 static PyObject* wiz_set_stack_size(PyObject* self, PyObject* size) {

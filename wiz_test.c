@@ -1,4 +1,4 @@
-#include "wiz.c"
+#include "solver.c"
 
 void next_solution() {
   if (solve()) {
