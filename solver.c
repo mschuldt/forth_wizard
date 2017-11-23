@@ -376,7 +376,6 @@ bool add_op(char op) {
   }
 
   _ops[n_ops_used++] = ops[op].fn;
-  printf("added op: %s\n", ops[op].name);
   return true;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -520,13 +519,22 @@ void set_stack_out( int *values, int len ) {
 
 bool initialized = false;
 
+void reset_solver() {
+     list_clear(code);
+     list_push(code,0);
+     list_clear(solution);
+}
+
+void reset() {
+  reset_solver();
+  list_clear(stack_in);
+  list_clear(stack_out);
+  n_ops_used = 0;
+}
+
 void init() {
   if ( initialized ) {
-    list_clear(code);
-    list_push(code,0);
-    list_clear(stack_in);
-    list_clear(stack_out);
-    list_clear(solution);
+    reset();
     return;
   }
   stack_size=23;
