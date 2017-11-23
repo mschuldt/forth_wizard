@@ -67,7 +67,6 @@ def solve_next():
         return None
     return [ ops[ op ] for op in code ]
 
-def solve(in_stack, out_stack, use_cache=True):
 code_map = { "3pick" : ["3", "pick"],
              "4pick" : ["4", "pick"],
              "5pick" : ["5", "pick"],
@@ -80,14 +79,47 @@ def convert_code(code):
         c = code_map.get(x)
         ret.extend(c) if c else ret.append(x)
     return ret
+
+def add_pick_ops():
+    for o in pick_ops:
+        wizard.add_op(ops.index(o))
+
 def add_none_pick_ops():
     for o in ops:
         if o not in pick_ops:
             wizard.add_op(ops.index(o))
+
+def add_all_ops():
+    for o in ops:
+        wizard.add_op(ops.index(o))
+
 def find_solution(use_pick):
+    # find solution without pick
     add_none_pick_ops()
-    x = solve_next()
-    return x, convert_code(x)
+    without_pick = solve_next()
+    if not use_pick:
+        return without_pick
+    # find solution with pick
+    wizard.reset_solver()
+    add_pick_ops()
+    with_pick = solve_next()
+    c_without_pick = convert_code(without_pick)
+    c_with_pick = convert_code(with_pick)
+    # an attempt at choose the 'best' solution
+    # When does it become preferable to use pick?
+    len_with = len(c_with_pick)
+    len_without = len(c_without_pick)
+    if len_with < len_without:
+        # using pick made the solution shorter
+        return c_with_pick, with_pick
+    if len_with == len_without:
+        # if there are at least as many 'drop's as 'pick's, prefer 'pick'
+        if c_without_pick.count('drop') >= c_with_pick.count('pick'):
+            return c_with_pick, with_pick
+        # otherwise solutions are tied, don't use pick
+    return c_without_pick, without_pick
+
+def solve(in_stack, out_stack, use_cache=True, use_pick=True):
     if not cache and use_cache:
         cache_read()
     s_in, s_out = convert_stacks(in_stack, out_stack)
@@ -99,11 +131,11 @@ def find_solution(use_pick):
     wizard.init()
     wizard.set_stack_in(s_in)
     wizard.set_stack_out(s_out)
-    code = find_solution(use_pick)
+    code, cache_code = find_solution(use_pick)
     if code and use_cache:
-        cache_save(key, code)
-    # convert after the cache so that it can be changed per forth target
-    return convert_code(code)
+        # cache unconverted code so that it can be changed per forth target
+        cache_save(key, cache_code)
+    return code
 
 cache = {}
 
