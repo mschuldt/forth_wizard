@@ -469,8 +469,8 @@ void add_all_ops() {
 }
 
 void print_solution() {
-  for( int i=0; i< code->len; i++){
-    printf("%s ", ops[(char)code->data[i]].name);
+  for( int i=0; i< solution->len; i++){
+    printf("%s ", ops[(char)solution->data[i]].name);
   }
   printf("\n");
 }
