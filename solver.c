@@ -372,9 +372,9 @@ char n_ops_used;
 
 bool add_op(char op) {
   if (op > max_ops) {
-    return false;
+    printf("Error: invalid op: %d\n", op);
+    exit(1);
   }
-
   _ops[n_ops_used++] = ops[op].fn;
   return true;
 }
@@ -459,6 +459,13 @@ bool verify_code() {
     list_copy(rstack_history[i], rstack);
   }
   return ( rstack->len == 0 ) && list_equal(stack, stack_out);
+}
+
+void add_all_ops() {
+  char op=0;
+  while (ops[op].fn != NULL) {
+    add_op(op++);
+  }
 }
 
 void print_solution() {

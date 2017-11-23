@@ -31,5 +31,7 @@ int test () {
 
 int main(int argc, char **argv) {
   init();
+  add_all_ops();
   test();   // 0.877 secs
+            // 2.937 secs with pick ops ({3-6} pick)
 }
