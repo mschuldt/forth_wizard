@@ -2,6 +2,7 @@
 
 import forthwiz as wiz
 import time
+
 wiz.set_stacks( in_stack=[1,2,3,4,5],
                 out_stack=[5,1,5,3,4] )
 
