@@ -21,8 +21,18 @@ ops = [ 'dup',
         'r@',
         '2>r',
         '2r>',
-        '2r@' ]
+        '2r@',
+        '3pick',
+        '4pick',
+        '5pick',
+        '6pick'
+]
 
+pick_ops =  [ '3pick',
+              '4pick',
+              '5pick',
+              '6pick'
+]
 def convert_stacks(in_stack, out_stack):
     symbols = {}
     counter = 0
@@ -58,6 +68,26 @@ def solve_next():
     return [ ops[ op ] for op in code ]
 
 def solve(in_stack, out_stack, use_cache=True):
+code_map = { "3pick" : ["3", "pick"],
+             "4pick" : ["4", "pick"],
+             "5pick" : ["5", "pick"],
+             "6pick" : ["6", "pick"]
+}
+
+def convert_code(code):
+    ret = []
+    for x in code:
+        c = code_map.get(x)
+        ret.extend(c) if c else ret.append(x)
+    return ret
+def add_none_pick_ops():
+    for o in ops:
+        if o not in pick_ops:
+            wizard.add_op(ops.index(o))
+def find_solution(use_pick):
+    add_none_pick_ops()
+    x = solve_next()
+    return x, convert_code(x)
     if not cache and use_cache:
         cache_read()
     s_in, s_out = convert_stacks(in_stack, out_stack)
@@ -69,10 +99,11 @@ def solve(in_stack, out_stack, use_cache=True):
     wizard.init()
     wizard.set_stack_in(s_in)
     wizard.set_stack_out(s_out)
-    code = solve_next()
+    code = find_solution(use_pick)
     if code and use_cache:
         cache_save(key, code)
-    return code
+    # convert after the cache so that it can be changed per forth target
+    return convert_code(code)
 
 cache = {}
 

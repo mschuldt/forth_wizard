@@ -315,6 +315,30 @@ bool rfetch2(void) {
   return true;
 }
 
+bool pick3(void) {
+  CHECK_STACK_3;
+  push(pick(3));
+  return true;
+}
+
+bool pick4(void) {
+  CHECK_STACK_4;
+  push(pick(4));
+  return true;
+}
+
+bool pick5(void) {
+  CHECK_STACK_5;
+  push(pick(5));
+  return true;
+}
+
+bool pick6(void) {
+  CHECK_STACK_6;
+  push(pick(6));
+  return true;
+}
+
 // Note: remember to update corresponding list in forthwiz/__init__.py
 Op ops[] = { { dup_, "dup" },
              { drop, "drop" },
@@ -335,6 +359,10 @@ Op ops[] = { { dup_, "dup" },
              { tor2, "2>r" },
              { rfrom2, "2r>" },
              { rfetch2, "2r@" },
+             { pick3, "3pick" },
+             { pick4, "4pick" },
+             { pick5, "5pick" },
+             { pick6, "6pick" },
              { NULL, NULL }};
 
 ////////////////////////////////////////////////////////////////////////////////
