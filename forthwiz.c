@@ -34,6 +34,16 @@ static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
   return Py_BuildValue("i", 1);
 }
 
+static PyObject* wiz_set_code(PyObject* self, PyObject* args) {
+  PyObject * tuple;
+
+  if (! PyArg_ParseTuple( args, "O", &tuple)) {
+    return NULL;
+  }
+  copy_to_list(tuple, code);
+  return Py_BuildValue("i", 1);
+}
+
 static PyObject* build_tuple(char *d, int len) {
   switch(len) {
     //TODO: how to construct a variable sized tuple
@@ -101,6 +111,7 @@ static char todo_docs[] = "TODO\n";
 static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS, todo_docs},
                                     {"set_stack_in", (PyCFunction)wiz_set_stack_in, METH_VARARGS, todo_docs},
                                     {"set_stack_out", (PyCFunction)wiz_set_stack_out, METH_VARARGS, todo_docs},
+                                    {"set_code", (PyCFunction)wiz_set_code, METH_VARARGS, todo_docs},
                                     {"solve", (PyCFunction)wiz_solve, METH_NOARGS, todo_docs},
                                     {"set_stack_size", (PyCFunction)wiz_set_stack_size, METH_O, todo_docs},
                                     {"get_stack", (PyCFunction)wiz_get_stack, METH_NOARGS, todo_docs},
