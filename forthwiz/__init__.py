@@ -36,6 +36,15 @@ pick_ops =  [ '3pick',
 
 n_ops = 0 # ops added to solver
 
+def normalize_stacks(in_stack, out_stack):
+    for i, n in enumerate(out_stack):
+        if out_stack[i] != i: break
+        if out_stack.count(n) != 1:
+            in_stack = [x - n for x in in_stack[i:]]
+            out_stack = [x - n for x in out_stack[i:]]
+            break
+    return in_stack, out_stack
+
 def convert_stacks(in_stack, out_stack):
     symbols = {}
     counter = 0
@@ -47,13 +56,6 @@ def convert_stacks(in_stack, out_stack):
         return symbols[ symbol ]
     s_in = [convert(s) for s in in_stack]
     s_out = [convert(s) for s in out_stack]
-    # normalize stacks
-    for i, n in enumerate(s_out):
-        if s_out[i] != i: break
-        if s_out.count(n) != 1:
-            s_in = [x - n for x in s_in[n:]]
-            s_out = [x - n for x in s_out[n:]]
-            break
     return s_in, s_out
 
 def set_stacks(in_stack, out_stack):
@@ -108,13 +110,13 @@ def find_solution(use_pick):
     # find solution without pick
     add_none_pick_ops()
     without_pick = solve_next()
+    c_without_pick = convert_code(without_pick)
     if not use_pick:
-        return without_pick
+        return c_without_pick, without_pick
     # find solution with pick
     wizard.reset_solver()
     add_pick_ops()
     with_pick = solve_next()
-    c_without_pick = convert_code(without_pick)
     c_with_pick = convert_code(with_pick)
     # an attempt at choose the 'best' solution
     # When does it become preferable to use pick?
@@ -136,17 +138,29 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True):
         cache_read()
     s_in, s_out = convert_stacks(in_stack, out_stack)
     key = tuple(s_in + [-1] + s_out)
+    n_in, n_out = normalize_stacks(s_in, s_out)
+    n_key = tuple(s_in + [-1] + s_out)
     if use_cache:
         code = cache.get(key)
-        if code:
-            return code
+        if code: return code
+        code = cache.get(n_key)
+        if code: return code
+    # find solution using the original stacks
     wizard.init()
     wizard.set_stack_in(s_in)
     wizard.set_stack_out(s_out)
     code, cache_code = find_solution(use_pick)
-    if code and use_cache:
-        # cache unconverted code so that it can be changed per forth target
-        cache_save(key, cache_code)
+    if not code or not use_cache:
+        return code
+    # check that solution is valid with normalized stacks
+    if n_in != s_in or n_out != s_out:
+        wizard.reset_solver()
+        wizard.set_stack_in(n_in)
+        wizard.set_stack_out(n_out)
+        wizard.set_code([ops.index(c) for c in code])
+        if wizard.verify():
+            key = tuple(n_in + [-1] + n_out)
+    cache_save(key, cache_code)
     return code
 
 cache = {}
