@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+
+import forthwiz as wiz
+from sys import argv
+
+from os import path
+
+cache_filename = wiz.cache_filename
+def cache_read():
+    if not path.exists(cache_filename):
+        return
+    with open(cache_filename,'r') as f:
+        for line in f.readlines():
+            k,v = line.split('=')
+            cache[tuple(map(int, k.split()))] = v.split()
+
+def fix_cache():
+    # recomputes all values in the cache
+    # used to verify cache entries, remove duplicates, and update the cache after wizard changes
+    # verify cache entries and re-write cache to remove duplicates
+    cache.clear()
+    cache_read()
+    cache_copy = cache.copy()
+    cache.clear()
+    cache_items = []
+    for k,v in cache_copy.items():
+        i = k.index(-1)
+        s_in = k[:i]
+        s_out = k[i+1:]
+        result = wiz.solve(s_in, s_out, use_cache=False)
+        if result != v:
+                print("updating: in= {}, out= {}".format(s_in, s_out))
+                print("    was:", v)
+                print("    now:", result)
+        cache_items.append((k,result))
+    cache_items.sort()
+    save_cache_items(cache_items)
+
+def save_cache_items(items):
+    with open(cache_filename,'w') as f:
+        for key,value in items:
+            k=' '.join([str(x) for x in key])
+            v=' '.join([str(x) for x in value])
+            f.write('{}={}\n'.format(k,v))
+
+def check_cache():
+    cache.clear()
+    cache_read()
+    wiz.wizard.init()
+    wiz.add_all_ops()
+    errors=0
+    for k,v in cache.items():
+        i = k.index(-1)
+        s_in, s_out = wiz.convert_stacks(k[:i], k[i+1:])
+        wiz.wizard.reset_solver()
+        wiz.wizard.set_stack_in(s_in)
+        wiz.wizard.set_stack_out(s_out)
+        code = []
+        for c in v:
+            if c in wiz.ops:
+                code.append(wiz.ops.index(c))
+            else:
+                print("in: {}, out: {}, code: {}".format(s_in, s_out, v))
+                print("    unknown op:", c)
+                code = None
+                errors += 1
+                break
+        if code:
+            wiz.wizard.set_code(code)
+            if not wiz.wizard.verify():
+                print("in: {}, out: {}".format(s_in, s_out))
+                print("    exected: ", v)
+                print("        got: ", result)
+                errors += 1
+    print(errors, "errors")
+
+def sort_cache():
+    cache.clear()
+    cache_read()
+    items = list(cache.items())
+    items.sort()
+    save_cache_items(items)
+
+cache = {}
+
+def usage():
+    exit(0)
+
+options = (("--fix-cache", "fixing cache...", fix_cache),
+           ("--check-cache", "checking cache...", check_cache),
+           ("--sort-cache", "sorting cache...", sort_cache))
+
+for option, message, fn in options:
+    if option in argv:
+        print(message)
+        fn()
+        exit(0)
