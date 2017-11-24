@@ -125,7 +125,8 @@ def find_solution(use_pick):
         return c_with_pick, with_pick
     if len_with == len_without:
         # if there are at least as many 'drop's as 'pick's, prefer 'pick'
-        if c_without_pick.count('drop') >= c_with_pick.count('pick'):
+        if ( ( c_without_pick.count('drop') + c_without_pick.count('nip') )
+             >= c_with_pick.count('pick') ):
             return c_with_pick, with_pick
         # otherwise solutions are tied, don't use pick
     return c_without_pick, without_pick
