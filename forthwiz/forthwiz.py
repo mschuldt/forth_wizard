@@ -155,6 +155,8 @@ def find_solution(use_pick):
 # solution is still unchanged with normalized stacks, if it is then cache the
 # result using the normalized stacks, otherwise cache using the original stacks.
 
+def make_cache_key(s_in, s_out, use_pick):
+    return tuple([-2 if use_pick else -3 ] + s_in + [-1] + s_out)
 
 def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
     if cache_file:
@@ -165,9 +167,10 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
     if not cache and use_cache:
         cache_read()
     s_in, s_out = convert_stacks(in_stack, out_stack)
-    key = tuple(s_in + [-1] + s_out)
+
+    key = make_cache_key(s_in, s_out, use_pick)
     n_in, n_out = normalize_stacks(s_in, s_out)
-    n_key = tuple(n_in + [-1] + n_out)
+    n_key = make_cache_key(n_in, n_out, use_pick)
     if use_cache:
         code = cache.get(key)
         if code: return convert_code(code)
