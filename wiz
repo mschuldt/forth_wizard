@@ -84,14 +84,19 @@ def sort_cache():
 cache = {}
 
 def usage():
+    print("options:")
+    for option in options:
+        print("   ", option[0])
     exit(0)
 
 options = (("--fix-cache", "fixing cache...", fix_cache),
            ("--check-cache", "checking cache...", check_cache),
-           ("--sort-cache", "sorting cache...", sort_cache))
+           ("--sort-cache", "sorting cache...", sort_cache),
+           ("--help", None, usage))
 
 for option, message, fn in options:
     if option in argv:
-        print(message)
+        if message:
+            print(message)
         fn()
         exit(0)
