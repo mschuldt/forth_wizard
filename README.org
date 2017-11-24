@@ -31,10 +31,10 @@ To disable caching set the optional parameter ~use_cache~ to False.
 ~solve_next~ does not utilize the cache.
 
 
-See =wiz_test.py=, =wiz_test.c=, and =test.py= for more usage examples.
+See =example.py=, =example.c=, and =test.py= for more usage examples.
 
 
-Supported instructions: dup drop swap over rot >r r> 2dup 2drop 2swap 2over 2rot nip tuck -rot r@ 2>r 2r> 2r@
+Supported instructions: dup drop swap over rot >r r> 2dup 2drop 2swap 2over 2rot nip tuck -rot r@ 2>r 2r> 2r@ pick
 
 
 Originally translated from: http://sovietov.com/app/forthwiz.html
