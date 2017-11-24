@@ -167,7 +167,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
     s_in, s_out = convert_stacks(in_stack, out_stack)
     key = tuple(s_in + [-1] + s_out)
     n_in, n_out = normalize_stacks(s_in, s_out)
-    n_key = tuple(s_in + [-1] + s_out)
+    n_key = tuple(n_in + [-1] + n_out)
     if use_cache:
         code = cache.get(key)
         if code: return convert_code(code)
