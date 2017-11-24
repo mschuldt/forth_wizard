@@ -1,3 +1,5 @@
+// gcc example.c -g -O3 -o example
+
 #include "solver.c"
 
 void next_solution() {
