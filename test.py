@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 
 import forthwiz as wiz
+import os
 
-def test(in_stack, out_stack, expected, use_pick=True):
-    result = wiz.solve( in_stack, out_stack, use_cache=False, use_pick=use_pick )
+test_cache_file = "__TEST_CACHE_FILE__"
+
+def check(note, result, expected, in_stack, out_stack):
     if result != expected:
         print( 'FAILED: in: {}, out: {}'.format( in_stack, out_stack ))
+        print( 'note:', note)
         print( ' want: ', expected)
         print( '  got: ', result)
         exit(1)
+
+def test(in_stack, out_stack, expected, use_pick=True):
+    result = wiz.solve( in_stack, out_stack, use_cache=False, use_pick=use_pick )
+    check('no cache', result, expected, in_stack, out_stack)
+    result = wiz.solve( in_stack, out_stack, use_cache=True,
+                        use_pick=use_pick, cache_file=test_cache_file )
+    check('with cache, 1st', result, expected, in_stack, out_stack)
+    result = wiz.solve( in_stack, out_stack, use_cache=True,
+                        use_pick=use_pick, cache_file=test_cache_file )
+    check('with cache, 2st', result, expected, in_stack, out_stack)
 
 def runtests():
     test(['a', 'b'], ['a', 'b', 'b'], ['dup'])
@@ -51,5 +64,13 @@ def runtests():
     #test(['x', 'y'], ['x','error', 'y'], ['swap', 'dup'])
 
 if __name__ == '__main__':
+
+    if os.path.exists(test_cache_file):
+        os.remove(test_cache_file)
+
     runtests()
+
+    assert os.path.exists(test_cache_file), "cache file was not created"
+    os.remove(test_cache_file)
+
     print("ok")
