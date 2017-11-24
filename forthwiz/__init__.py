@@ -133,6 +133,28 @@ def find_solution(use_pick):
         # otherwise solutions are tied, don't use pick
     return c_without_pick, without_pick
 
+
+# Stack normalization does not always result in the same answer.
+# for example:
+#
+#  in stack: [0,1,2,3]
+# out stack: [0,1,2,3,1]
+#   => 2over nip
+#
+# after normalization:
+#  in stack: [0,1,2]
+# out stack:[0,1,2,0]
+#  => dup 2over drop nip
+#
+# The normalized form is preferred as it de-duplicates a lot of input
+# leading to greater cache utilization, but it cannot be done in situations
+# where the deeper stack depth is used to produce shorter code sequence.
+#
+# Generate the solution using the original stacks, then verify that the
+# solution is still unchanged with normalized stacks, if it is then cache the
+# result using the normalized stacks, otherwise cache using the original stacks.
+
+
 def solve(in_stack, out_stack, use_cache=True, use_pick=True):
     if not cache and use_cache:
         cache_read()
