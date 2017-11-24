@@ -179,7 +179,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True):
         wizard.reset_solver()
         wizard.set_stack_in(n_in)
         wizard.set_stack_out(n_out)
-        wizard.set_code([ops.index(c) for c in code])
+        wizard.set_code([ops.index(c) for c in cache_code])
         if wizard.verify():
             key = tuple(n_in + [-1] + n_out)
     cache_save(key, cache_code)
