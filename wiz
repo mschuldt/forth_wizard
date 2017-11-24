@@ -6,6 +6,7 @@ from sys import argv
 from os import path
 
 cache_filename = wiz.cache_filename
+
 def cache_read():
     if not path.exists(cache_filename):
         return
@@ -26,8 +27,10 @@ def fix_cache():
     for k,v in cache_copy.items():
         i = k.index(-1)
         s_in = k[:i]
+        use_pick = True if s_in[0] == -2 else False
+        s_in = s_in[1:] # drop pick flag
         s_out = k[i+1:]
-        result = wiz.solve(s_in, s_out, use_cache=False)
+        result = wiz.solve(s_in, s_out, use_cache=False, use_pick=use_pick, convert=False)
         if result != v:
                 print("updating: in= {}, out= {}".format(s_in, s_out))
                 print("    was:", v)
@@ -52,6 +55,7 @@ def check_cache():
     for k,v in cache.items():
         i = k.index(-1)
         s_in, s_out = wiz.convert_stacks(k[:i], k[i+1:])
+        s_in = s_in[1:] # drop pick flag
         wiz.wizard.reset_solver()
         wiz.wizard.set_stack_in(s_in)
         wiz.wizard.set_stack_out(s_out)
