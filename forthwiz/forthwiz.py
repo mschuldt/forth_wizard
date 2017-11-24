@@ -187,7 +187,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
         wizard.set_stack_out(n_out)
         wizard.set_code([ops.index(c) for c in cache_code])
         if wizard.verify():
-            key = tuple(n_in + [-1] + n_out)
+            key = n_key
     cache_save(key, cache_code)
     return code
 
