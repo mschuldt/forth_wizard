@@ -2,6 +2,7 @@ import chuckmoore as wizard
 from os import path
 
 cache_filename = 'forth_wizard_cache.txt'
+current_cache_filename = None
 
 ops = [ 'dup',
         'drop',
@@ -155,7 +156,12 @@ def find_solution(use_pick):
 # result using the normalized stacks, otherwise cache using the original stacks.
 
 
-def solve(in_stack, out_stack, use_cache=True, use_pick=True):
+def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
+    if cache_file:
+        global cache_filename
+        cache_filename = cache_file
+        if cache_filename != current_cache_filename:
+            cache.clear()
     if not cache and use_cache:
         cache_read()
     s_in, s_out = convert_stacks(in_stack, out_stack)
@@ -194,6 +200,8 @@ def cache_read():
         for line in f.readlines():
             k,v = line.split('=')
             cache[tuple(map(int, k.split()))] = v.split()
+    global current_cache_filename
+    current_cache_filename = cache_filename
 
 def cache_save(key, value):
     cache[key] = value
