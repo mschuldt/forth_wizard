@@ -170,9 +170,9 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
     n_key = tuple(s_in + [-1] + s_out)
     if use_cache:
         code = cache.get(key)
-        if code: return code
+        if code: return convert_code(code)
         code = cache.get(n_key)
-        if code: return code
+        if code: return convert_code(code)
     # find solution using the original stacks
     wizard.init()
     wizard.set_stack_in(s_in)
