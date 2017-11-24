@@ -158,7 +158,8 @@ def find_solution(use_pick):
 def make_cache_key(s_in, s_out, use_pick):
     return tuple([-2 if use_pick else -3 ] + s_in + [-1] + s_out)
 
-def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
+def solve(in_stack, out_stack, use_cache=True, use_pick=True,
+          cache_file=None, convert=True):
     if cache_file:
         global cache_filename
         cache_filename = cache_file
@@ -173,16 +174,18 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
     n_key = make_cache_key(n_in, n_out, use_pick)
     if use_cache:
         code = cache.get(key)
-        if code: return convert_code(code)
+        if code:
+            return convert_code(code) if convert else code
         code = cache.get(n_key)
-        if code: return convert_code(code)
+        if code:
+            return convert_code(code) if convert else code
     # find solution using the original stacks
     wizard.init()
     wizard.set_stack_in(s_in)
     wizard.set_stack_out(s_out)
     code, cache_code = find_solution(use_pick)
     if not code or not use_cache:
-        return code
+        return code if convert else cache_code
     # check that solution is valid with normalized stacks
     if n_in != s_in or n_out != s_out:
         wizard.reset_solver()
@@ -192,7 +195,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True, cache_file=None):
         if wizard.verify():
             key = n_key
     cache_save(key, cache_code)
-    return code
+    return code if convert else cache_code
 
 cache = {}
 
