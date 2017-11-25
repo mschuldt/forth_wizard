@@ -2,7 +2,7 @@ The Forth Wizard finds the shortest sequence of forth instructions needed for a 
 
 It is written in C and provides a Python3 module. Tested only on Ubuntu.
 
-Run ~./make.sh~ to build and install, requires package python3-dev to build.
+Run ~sudo ./make.sh~ to build and install, requires package python3-dev to build.
 
 Usage:
 #+BEGIN_SRC python
@@ -13,6 +13,14 @@ Usage:
 #+END_SRC
 ~solve~ takes two lists describing the input and output states of the data stack.
 The items in those lists may be any hashable type.
+
+Use of the =pick= instruction may be disabled:
+#+BEGIN_SRC python
+  >>> forthwiz.solve([0, 1, 2], [0, 2, 0, 1])
+  ['2', 'pick', 'rot']
+  >>> forthwiz.solve([0, 1, 2], [0, 2, 0, 1], use_pick=False)
+  ['swap', '>r', 'over', 'r>']
+#+END_SRC
 
 To get multiple solutions specify the input and output stacks with ~set_stacks~
 and use ~solve_next~ to get the next solution in the sequence:
