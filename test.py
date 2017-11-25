@@ -41,25 +41,25 @@ def runtests():
     test(['a', 'b'], ['a', 'b'], [])
     test(['a', '+_arg1'], ['+_arg1', 'a', 'a'], ['swap', 'dup'])
     test(['a', 'b'],['a', 'b', 'a', 'b'], ['2dup'] )
-    test([0,1,2], [0,1,2,0], ['3', 'pick'])
-    test([0,1,2,3], [0,1,2,3,0], ['4', 'pick'])
-    test([0,1,2,3,4], [0,1,2,3,4,0], ['5', 'pick'])
-    test([0,1,2,3,4,5], [0,1,2,3,4,5,0], ['6', 'pick'])
+    test([0,1,2], [0,1,2,0], ['2', 'pick'])
+    test([0,1,2,3], [0,1,2,3,0], ['3', 'pick'])
+    test([0,1,2,3,4], [0,1,2,3,4,0], ['4', 'pick'])
+    test([0,1,2,3,4,5], [0,1,2,3,4,5,0], ['5', 'pick'])
     a=[0, 1, 2, 3, 4, 5, 6]
     b=[0, 1, 2, 3, 4, 5, 6, 3]
-    test(a, b, ['4', 'pick'], use_pick=True)
+    test(a, b, ['3', 'pick'], use_pick=True)
     test(a, b, ['2over', 'drop'], use_pick=False)
     a=[0, 1, 2]
     b=[0, 2, 0, 1]
-    test(a,b, ['3', 'pick', 'rot'])
+    test(a,b, ['2', 'pick', 'rot'])
     test(a,b, ['swap', '>r', 'over', 'r>'], use_pick=False)
     a=[0, 1, 2, 3]
     b=[0, 1, 2, 3, 1]
-    test(a, b, ['3', 'pick'])
+    test(a, b, ['2', 'pick'])
     test(a, b, ['2over', 'nip'], use_pick=False)
     a=[0, 1, 2, 3, 4, 5]
     b=[0, 1, 2, 3, 4, 5, 1]
-    test(a, b, ['5', 'pick'])
+    test(a, b, ['4', 'pick'])
     test(a, b, ['>r', '2over', 'drop', '>r', '2r>'], use_pick=False)
     #test(['x', 'y'], ['x','error', 'y'], ['swap', 'dup'])
 

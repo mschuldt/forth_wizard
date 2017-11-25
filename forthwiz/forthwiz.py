@@ -23,17 +23,15 @@ ops = [ 'dup',
         '2>r',
         '2r>',
         '2r@',
-        '3pick',
-        '4pick',
-        '5pick',
-        '6pick'
 ]
 
-pick_ops =  [ '3pick',
+pick_ops =  [ '2pick',
+              '3pick',
               '4pick',
               '5pick',
-              '6pick'
 ]
+
+ops.extend(pick_ops)
 
 n_ops = 0 # ops added to solver
 
@@ -75,10 +73,10 @@ def solve_next():
         return None
     return [ ops[ op ] for op in code ]
 
-code_map = { "3pick" : ["3", "pick"],
+code_map = { "2pick" : ["2", "pick"],
+             "3pick" : ["3", "pick"],
              "4pick" : ["4", "pick"],
-             "5pick" : ["5", "pick"],
-             "6pick" : ["6", "pick"]
+             "5pick" : ["5", "pick"]
 }
 
 def convert_code(code):
