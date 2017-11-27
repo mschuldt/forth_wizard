@@ -2,7 +2,8 @@ The Forth Wizard finds the shortest sequence of forth instructions needed for a 
 
 It is written in C and provides a Python3 module. Tested only on Ubuntu.
 
-Run ~sudo ./make.sh~ to build and install, requires package python3-dev to build.
+Install from pypi with ~pip3 install forthwiz~,
+or download and run ~sudo ./make.sh~ to build and install. Requires package python3-dev to build.
 
 Usage:
 #+BEGIN_SRC python
