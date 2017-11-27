@@ -11,5 +11,4 @@ setup(name='forthwiz',
       author='Michael Schuldt',
       author_email='mbschuldt@gmail.com',
       ext_modules=[Extension('chuckmoore', ['forthwiz.c'] )],
-      headers=['solver.c'],
-      scripts=['test.py'])
+      scripts=['test.py', 'solver.c'])
