@@ -4,3 +4,5 @@ build
 gmon.out
 __pycache__
 forth_wizard_cache.txt
+dist
+MANIFEST
