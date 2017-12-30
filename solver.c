@@ -202,6 +202,14 @@ bool dup2_(void) {
   return true;
 }
 
+bool dup3(void) {
+  CHECK_STACK_3;
+  push(pick(3));
+  push(pick(3));
+  push(pick(3));
+  return true;
+}
+
 bool drop2(void) {
   CHECK_STACK_2;
   stack->len -= 2;
@@ -351,6 +359,7 @@ Op ops[] = { { dup_, "dup" },
              { tor2, "2>r" },
              { rfrom2, "2r>" },
              { rfetch2, "2r@" },
+             { dup3, "3dup"},
              { pick2, "2pick" },
              { pick3, "3pick" },
              { pick4, "4pick" },

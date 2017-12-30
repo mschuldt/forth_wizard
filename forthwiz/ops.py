@@ -17,6 +17,7 @@ ops = [ 'dup',
         '2>r',
         '2r>',
         '2r@',
+        '3dup',
 ]
 
 pick_ops =  [ '2pick',
@@ -41,13 +42,16 @@ def _ops_except(*except_ops):
         ret.remove(o)
     return ret
 
-gforth_ops = _ops_except()
+gforth_ops = _ops_except(
+    '3dup',
+)
 
 amforth_ops = _ops_except(
     '2over',
     '2rot',
     'tuck',
     '-rot',
+    '3dup',
 )
 
 target_ops = { "gforth" : gforth_ops,
