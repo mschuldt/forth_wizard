@@ -1,15 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-void assert(bool x, char *msg){
-  if(x){
-    //printf("OK: assertion: %s\n", msg);
-    return;
-  }
-  printf("failed assertion: %s\n", msg);
-  exit(1);
-}
+#include <assert.h>
 
 typedef struct List {
   char *data;
@@ -71,7 +63,7 @@ List* list_clone(List *in) {
 }
 
 void list_copy(List *to, List *from) {
-  assert( from->len <= to->size, "destination list is too small" );
+  assert( from->len <= to->size && "destination list is too small" );
   int len = from->len;
   to->len = len;
   for(int i = 0; i < len; i++){
@@ -84,13 +76,13 @@ void list_clear(List *list) {
 }
 
 static inline void list_push(List* s, char v) {
-  assert(s->len < s->size, "stack overflow");
+  assert(s->len < s->size && "stack overflow");
   s->data[ s->len ] = v;
   s->len++;
 }
 
 static inline char list_pop(List* s) {
-  assert(s->len >= 0, "stack underflow");
+  assert(s->len >= 0 && "stack underflow");
   int len = s->len - 1;
   char ret = s->data[len];
   s->len = len;
@@ -120,7 +112,7 @@ static inline bool stack_member(List* s, char n) {
 }
 
 void unshift( List *s, char v ) {
-  assert( s->len < s->size, "unshift: no room");
+  assert( s->len < s->size && "unshift: no room");
   for( int i=s->len-1; i >= 0; i--) {
     s->data[i+1] = s->data[i];
   }
