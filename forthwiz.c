@@ -6,11 +6,11 @@ static PyObject* wiz_set_stack_size(PyObject* self, PyObject* size) {
   return Py_BuildValue("i", stack_size);
 }
 
-static void copy_to_list(PyObject *tuple, List *list) {
+static void copy_to_slice(PyObject *tuple, Slice *slice) {
   long len = PyList_Size(tuple);
-  list_clear(list);
+  slice_clear(slice);
   for(int i = 0; i < len; i++){
-    list_push(list, (char) PyLong_AsLong(PyList_GetItem(tuple, i)));
+    slice_push(slice, (char) PyLong_AsLong(PyList_GetItem(tuple, i)));
   }
 }
 
@@ -20,7 +20,7 @@ static PyObject* wiz_set_stack_in(PyObject* self, PyObject* args) {
   if (! PyArg_ParseTuple( args, "O", &tuple)) {
     return NULL;
   }
-  copy_to_list(tuple, stack_in);
+  copy_to_slice(tuple, stack_in);
   return Py_BuildValue("i", 1);
 }
 
@@ -30,7 +30,7 @@ static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
   if (! PyArg_ParseTuple( args, "O", &tuple)) {
     return NULL;
   }
-  copy_to_list(tuple, stack_out);
+  copy_to_slice(tuple, stack_out);
   return Py_BuildValue("i", 1);
 }
 
@@ -40,7 +40,7 @@ static PyObject* wiz_set_code(PyObject* self, PyObject* args) {
   if (! PyArg_ParseTuple( args, "O", &tuple)) {
     return NULL;
   }
-  copy_to_list(tuple, code);
+  copy_to_slice(tuple, code);
   return Py_BuildValue("i", 1);
 }
 

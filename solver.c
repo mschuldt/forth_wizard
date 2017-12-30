@@ -3,43 +3,43 @@
 #include <stdlib.h>
 #include <assert.h>
 
-typedef struct List {
+typedef struct Slice {
   char *data;
   int len;
-  int size;
-} List;
+  int cap;
+} Slice;
 
 typedef struct Op {
   bool (*fn)(void);
   char* name;
 } Op;
 
-List *stack;
-List *rstack;
-List *stack_in;
-List *stack_out;
-//List *rstack_in;
-List **stack_history;
-List **rstack_history;
+Slice *stack;
+Slice *rstack;
+Slice *stack_in;
+Slice *stack_out;
+//Slice *rstack_in;
+Slice **stack_history;
+Slice **rstack_history;
 
-List *code;
-List *solution;
-List *unique_symbols;
+Slice *code;
+Slice *solution;
+Slice *unique_symbols;
 
 int max_code_length = 15;
 int stack_size = 30;
 
 int max_ops;
 
-List* new_list(int size) {
-  List* stack = (List*)calloc(sizeof(List), 1);
-  stack->data = (char*)calloc(sizeof(char), size);
-  stack->size = size;
+Slice* new_slice(int cap) {
+  Slice* stack = (Slice*)calloc(sizeof(Slice), 1);
+  stack->data = (char*)calloc(sizeof(char), cap);
+  stack->cap = cap;
   stack->len = 0;
   return stack;
 }
 
-int list_equal(List *in, List *out) {
+int slice_equal(Slice *in, Slice *out) {
   int len = in->len;
   if (len != out->len){
     return false;
@@ -52,8 +52,8 @@ int list_equal(List *in, List *out) {
   return true;
 }
 
-List* list_clone(List *in) {
-  List *s = new_list(in->size);
+Slice* slice_clone(Slice *in) {
+  Slice *s = new_slice(in->cap);
   int len = in->len;
   for(int i = 0; i < len; i++){
     s->data[i] = in->data[i];
@@ -62,8 +62,8 @@ List* list_clone(List *in) {
   return s;
 }
 
-void list_copy(List *to, List *from) {
-  assert( from->len <= to->size && "destination list is too small" );
+void slice_copy(Slice *to, Slice *from) {
+  assert( from->len <= to->cap && "destination slice is too small" );
   int len = from->len;
   to->len = len;
   for(int i = 0; i < len; i++){
@@ -71,17 +71,17 @@ void list_copy(List *to, List *from) {
   }
 }
 
-void list_clear(List *list) {
-  list->len = 0;
+void slice_clear(Slice *slice) {
+  slice->len = 0;
 }
 
-static inline void list_push(List* s, char v) {
-  assert(s->len < s->size && "stack overflow");
+static inline void slice_push(Slice* s, char v) {
+  assert(s->len < s->cap && "stack overflow");
   s->data[ s->len ] = v;
   s->len++;
 }
 
-static inline char list_pop(List* s) {
+static inline char slice_pop(Slice* s) {
   assert(s->len >= 0 && "stack underflow");
   int len = s->len - 1;
   char ret = s->data[len];
@@ -92,11 +92,11 @@ static inline char list_pop(List* s) {
 static inline int pick(int i) { return stack->data[stack->len - i ]; }
 static inline int rpick(int i) { return rstack->data[rstack->len - i ]; }
 
-static inline void push(int v) { list_push(stack, v); }
-static inline void rpush(int v) { list_push(rstack, v); }
+static inline void push(int v) { slice_push(stack, v); }
+static inline void rpush(int v) { slice_push(rstack, v); }
 
-static inline int pop() { return list_pop(stack); }
-static inline int rpop() { return list_pop(rstack); }
+static inline int pop() { return slice_pop(stack); }
+static inline int rpop() { return slice_pop(rstack); }
 
 bool member(char *s, unsigned int len, char n) {
   for(int i = 0; i < len; i++) {
@@ -107,12 +107,12 @@ bool member(char *s, unsigned int len, char n) {
   return false;
 }
 
-static inline bool stack_member(List* s, char n) {
+static inline bool stack_member(Slice* s, char n) {
   return member(s->data, s->len, n);
 }
 
-void unshift( List *s, char v ) {
-  assert( s->len < s->size && "unshift: no room");
+void unshift( Slice *s, char v ) {
+  assert( s->len < s->cap && "unshift: no room");
   for( int i=s->len-1; i >= 0; i--) {
     s->data[i+1] = s->data[i];
   }
@@ -120,7 +120,7 @@ void unshift( List *s, char v ) {
   s->len++;
 }
 
-void list_print( List *s ) {
+void slice_print( Slice *s ) {
   for (int i=0; i < s->len; i ++){
     printf("%d ", s->data[i]);
   }
@@ -397,11 +397,11 @@ void skip_code(int n) {
 }
 
 void collect_unique_symbols() {
-  list_clear(unique_symbols);
+  slice_clear(unique_symbols);
   int len = stack_out->len;
   for(int i = 0; i < len; i++) {
     if( !stack_member(unique_symbols, stack_out->data[i])) {
-      list_push(unique_symbols, stack_out->data[i]);
+      slice_push(unique_symbols, stack_out->data[i]);
     }
   }
 }
@@ -427,19 +427,19 @@ bool check_symbols()
 }
 
 bool noop(int n) {
-  if(!rstack->len && list_equal(stack, stack_in)){
+  if(!rstack->len && slice_equal(stack, stack_in)){
     return true;
   }
   for ( int i=0; i < n; i++ ){
-    if(list_equal(stack_history[i], stack) && list_equal(rstack_history[i], rstack))
+    if(slice_equal(stack_history[i], stack) && slice_equal(rstack_history[i], rstack))
       return true;
   }
   return false;
 }
 
 bool verify_code() {
-  list_copy(stack, stack_in);
-  list_clear(rstack);
+  slice_copy(stack, stack_in);
+  slice_clear(rstack);
 
   for(int i = 0; i < code->len; i++) {
     if( !_ops[code->data[i]]()
@@ -447,10 +447,10 @@ bool verify_code() {
       skip_code(i);
       return false;
     }
-    list_copy(stack_history[i], stack);
-    list_copy(rstack_history[i], rstack);
+    slice_copy(stack_history[i], stack);
+    slice_copy(rstack_history[i], rstack);
   }
-  return ( rstack->len == 0 ) && list_equal(stack, stack_out);
+  return ( rstack->len == 0 ) && slice_equal(stack, stack_out);
 }
 
 void add_all_ops() {
@@ -472,8 +472,8 @@ bool solve_next() {
     printf("Error: calling solve before adding ops\n");
     exit(1);
   }
-  if (list_equal(stack_in, stack_out)){
-    list_clear(code);
+  if (slice_equal(stack_in, stack_out)){
+    slice_clear(code);
     return true;
   }
   while( code->len <= max_code_length ) {
@@ -499,35 +499,35 @@ void set_stack_size(int n){
 void set_stack_in( int *values, int len ) {
 
   for (int i = 0; i < len; i++) {
-    list_push(stack_in, values[i]);
+    slice_push(stack_in, values[i]);
   }
   //printf("in stack\n");
-  //list_print(stack_in);
+  //slice_print(stack_in);
 }
 
 void set_stack_out( int *values, int len ) {
 
   for (int i = 0; i < len; i++) {
-    list_push(stack_out, values[i]);
+    slice_push(stack_out, values[i]);
   }
   collect_unique_symbols();
   validate_stacks();
   //printf("out stack\n");
-  //list_print(stack_out);
+  //slice_print(stack_out);
 }
 
 bool initialized = false;
 
 void reset_solver() {
-     list_clear(code);
-     list_push(code,0);
-     list_clear(solution);
+     slice_clear(code);
+     slice_push(code,0);
+     slice_clear(solution);
 }
 
 void reset() {
   reset_solver();
-  list_clear(stack_in);
-  list_clear(stack_out);
+  slice_clear(stack_in);
+  slice_clear(stack_out);
   n_ops_used = 0;
 }
 
@@ -538,25 +538,25 @@ void init() {
   }
   stack_size=23;
   max_code_length = 10;
-  stack_in = new_list(stack_size);
-  stack_out = new_list(stack_size);
-  stack = new_list(stack_size);
-  rstack = new_list(stack_size);
-  unique_symbols = new_list(stack_size);
-  stack_history = (List**)calloc(sizeof(List*), max_code_length);
-  rstack_history = (List**)calloc(sizeof(List*), max_code_length);
+  stack_in = new_slice(stack_size);
+  stack_out = new_slice(stack_size);
+  stack = new_slice(stack_size);
+  rstack = new_slice(stack_size);
+  unique_symbols = new_slice(stack_size);
+  stack_history = (Slice**)calloc(sizeof(Slice*), max_code_length);
+  rstack_history = (Slice**)calloc(sizeof(Slice*), max_code_length);
   for(int i = 0; i < max_code_length; i++) {
-      stack_history[i] = new_list(stack_size);
-      rstack_history[i] = new_list(stack_size);
+      stack_history[i] = new_slice(stack_size);
+      rstack_history[i] = new_slice(stack_size);
   }
 
   count_ops(); //sets max_ops
   _ops = (op_fn_t*)calloc(sizeof(bool (*)(void)), max_ops);
   n_ops_used = 0;
 
-  code = new_list(max_code_length);
-  solution = new_list(max_code_length);
-  list_push(code,0);
+  code = new_slice(max_code_length);
+  solution = new_slice(max_code_length);
+  slice_push(code,0);
   initialized = true;
 }
 
@@ -564,7 +564,7 @@ bool solve() {
   if (!solve_next()) {
     return false;
   }
-  list_copy(solution, code);
+  slice_copy(solution, code);
   if( code->len > 0 ) {
     next();
   }
