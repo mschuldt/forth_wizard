@@ -35,55 +35,20 @@ code_map = { "2pick" : ["2", "pick"],
              "5pick" : ["5", "pick"]
 }
 
-gforth_ops = [ 'dup',
-               'drop',
-               'swap',
-               'over',
-               'rot',
-               '>r',
-               'r>',
-               '2dup',
-               '2drop',
-               '2swap',
-               '2over',
-               '2rot',
-               'nip',
-               'tuck',
-               '-rot',
-               'r@',
-               '2>r',
-               '2r>',
-               '2r@',
-               '2pick',
-               '3pick',
-               '4pick',
-               '5pick',
-]
+def _ops_except(*except_ops):
+    ret = list(ops)
+    for o in except_ops:
+        ret.remove(o)
+    return ret
 
-amforth_ops = [ 'dup',
-                'drop',
-                'swap',
-                'over',
-                'rot',
-                '>r',
-                'r>',
-                '2dup',
-                '2drop',
-                '2swap',
-                #'2over',
-                #'2rot',
-                'nip',
-                #'tuck',
-                #'-rot',
-                'r@',
-                '2>r',
-                '2r>',
-                '2r@',
-                '2pick',
-                '3pick',
-                '4pick',
-                '5pick',
-]
+gforth_ops = _ops_except()
+
+amforth_ops = _ops_except(
+    '2over',
+    '2rot',
+    'tuck',
+    '-rot',
+)
 
 target_ops = { "gforth" : gforth_ops,
                "amforth" : amforth_ops,
