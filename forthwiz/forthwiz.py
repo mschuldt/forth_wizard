@@ -31,6 +31,8 @@ pick_ops =  [ '2pick',
               '5pick',
 ]
 
+not_pick_ops = [o for o in ops if o not in pick_ops]
+
 ops.extend(pick_ops)
 
 n_ops = 0 # ops added to solver
@@ -94,25 +96,23 @@ def add_ops(x):
             raise Exception("Unsupported op '{}'".format(o))
         wizard.add_op(ops.index(o))
 
-def add_pick_ops():
-    add_ops(pick_ops)
+def add_pick_ops():      add_ops(pick_ops)
+def add_none_pick_ops(): add_ops(not_pick_ops)
+def add_all_ops():       add_ops(ops)
 
-def add_none_pick_ops():
-    add_ops([o for o in ops if o not in pick_ops])
-
-def add_all_ops():
-    add_ops(ops)
-
-def find_solution(use_pick):
+def find_solution(ops):
+    ops_with_pick, ops_without_pick = [], []
+    for o in ops:
+        (ops_with_pick if o in pick_ops else ops_without_pick).append(o)
     # find solution without pick
-    add_none_pick_ops()
+    add_ops(ops_without_pick)
     without_pick = solve_next()
     c_without_pick = convert_code(without_pick)
-    if not use_pick:
+    if not ops_with_pick:
         return c_without_pick, without_pick
     # find solution with pick
     wizard.reset_solver()
-    add_pick_ops()
+    add_ops(ops_with_pick)
     with_pick = solve_next()
     c_with_pick = convert_code(with_pick)
     # Attempt to choose the 'best' solution
@@ -179,7 +179,8 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     wizard.init()
     wizard.set_stack_in(s_in)
     wizard.set_stack_out(s_out)
-    code, cache_code = find_solution(use_pick)
+    use_ops = ops if use_pick else not_pick_ops
+    code, cache_code = find_solution(use_ops)
     if not code or not use_cache:
         return code if convert else cache_code
     # check that solution is valid with normalized stacks
