@@ -117,7 +117,7 @@ def find_solution(use_pick):
     add_pick_ops()
     with_pick = solve_next()
     c_with_pick = convert_code(with_pick)
-    # an attempt at choose the 'best' solution
+    # Attempt to choose the 'best' solution
     # When does it become preferable to use pick?
     len_with = len(c_with_pick)
     len_without = len(c_without_pick)
