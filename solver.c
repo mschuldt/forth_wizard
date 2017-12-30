@@ -339,7 +339,7 @@ bool pick5(void) {
   return true;
 }
 
-// Note: remember to update corresponding list in forthwiz/__init__.py
+// Note: remember to update corresponding list in forthwiz/ops.py
 Op ops[] = { { dup_, "dup" },
              { drop, "drop" },
              { swap, "swap" },
