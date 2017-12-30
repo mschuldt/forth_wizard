@@ -63,6 +63,12 @@ def add_pick_ops():      add_ops(pick_ops)
 def add_none_pick_ops(): add_ops(not_pick_ops)
 def add_all_ops():       add_ops(ops)
 
+def count_drop_nip( code ):
+    s = 0
+    for o in ['drop', '2drop', 'nip']:
+        s += code.count(o)
+    return s
+
 def find_solution(ops):
     ops_with_pick, ops_without_pick = [], []
     for o in ops:
@@ -87,8 +93,7 @@ def find_solution(ops):
         return c_with_pick, with_pick
     if len_with == len_without:
         # if there are at least as many 'drop's as 'pick's, prefer 'pick'
-        if ( ( c_without_pick.count('drop') + c_without_pick.count('nip') )
-             >= c_with_pick.count('pick') ):
+        if count_drop_nip( c_without_pick ) >= c_with_pick.count('pick'):
             return c_with_pick, with_pick
         # otherwise solutions are tied, don't use pick
     return c_without_pick, without_pick
