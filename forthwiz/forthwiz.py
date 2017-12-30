@@ -117,8 +117,22 @@ def find_solution(ops):
 def make_cache_key(s_in, s_out, use_pick):
     return tuple([-2 if use_pick else -3 ] + s_in + [-1] + s_out)
 
+def _choose_ops(use_pick, target):
+    if target:
+        use_ops = target_ops.get(target)
+        if not use_ops:
+            raise Exception("Unknown target:" + str(target))
+        if not use_pick:
+            # remove pick ops
+            use_ops = [o for o in use_ops if o not in pick_ops]
+    else:
+        # if no target is specified, default to all ops
+        use_ops = ops if use_pick else not_pick_ops
+    return use_ops
+
 def solve(in_stack, out_stack, use_cache=True, use_pick=True,
-          cache_file=None, convert=True):
+          cache_file=None, convert=True, target=None):
+    use_ops = _choose_ops(use_pick, target)
     if cache_file:
         global cache_filename
         cache_filename = cache_file
@@ -142,7 +156,6 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     wizard.init()
     wizard.set_stack_in(s_in)
     wizard.set_stack_out(s_out)
-    use_ops = ops if use_pick else not_pick_ops
     code, cache_code = find_solution(use_ops)
     if not code or not use_cache:
         return code if convert else cache_code
