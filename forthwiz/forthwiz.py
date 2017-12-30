@@ -86,24 +86,22 @@ def convert_code(code):
         ret.extend(c) if c else ret.append(x)
     return ret
 
-def add_pick_ops():
+def add_ops(x):
     global n_ops
-    n_ops += len(pick_ops)
-    for o in pick_ops:
+    n_ops += len(x)
+    for o in x:
+        if o not in x:
+            raise Exception("Unsupported op '{}'".format(o))
         wizard.add_op(ops.index(o))
+
+def add_pick_ops():
+    add_ops(pick_ops)
 
 def add_none_pick_ops():
-    global n_ops
-    for o in ops:
-        if o not in pick_ops:
-            n_ops += 1
-            wizard.add_op(ops.index(o))
+    add_ops([o for o in ops if o not in pick_ops])
 
 def add_all_ops():
-    global n_ops
-    n_ops += len(ops)
-    for o in ops:
-        wizard.add_op(ops.index(o))
+    add_ops(ops)
 
 def find_solution(use_pick):
     # find solution without pick
