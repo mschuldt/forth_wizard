@@ -1,40 +1,9 @@
 import chuckmoore as wizard
+from .ops import *
 from os import path
 
 cache_filename = 'forth_wizard_cache.txt'
 current_cache_filename = None
-
-ops = [ 'dup',
-        'drop',
-        'swap',
-        'over',
-        'rot',
-        '>r',
-        'r>',
-        '2dup',
-        '2drop',
-        '2swap',
-        '2over',
-        '2rot',
-        'nip',
-        'tuck',
-        '-rot',
-        'r@',
-        '2>r',
-        '2r>',
-        '2r@',
-]
-
-pick_ops =  [ '2pick',
-              '3pick',
-              '4pick',
-              '5pick',
-]
-
-not_pick_ops = [o for o in ops if o not in pick_ops]
-
-ops.extend(pick_ops)
-
 n_ops = 0 # ops added to solver
 
 def normalize_stacks(in_stack, out_stack):
@@ -74,12 +43,6 @@ def solve_next():
     if code == -1:
         return None
     return [ ops[ op ] for op in code ]
-
-code_map = { "2pick" : ["2", "pick"],
-             "3pick" : ["3", "pick"],
-             "4pick" : ["4", "pick"],
-             "5pick" : ["5", "pick"]
-}
 
 def convert_code(code):
     ret = []
