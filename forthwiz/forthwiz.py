@@ -135,9 +135,7 @@ def _choose_ops(use_pick, target):
         use_ops = ops if use_pick else not_pick_ops
     return use_ops
 
-def solve(in_stack, out_stack, use_cache=True, use_pick=True,
-          cache_file=None, convert=True, target=None):
-    use_ops = _choose_ops(use_pick, target)
+def _handle_cache(use_cache, cache_file):
     if cache_file:
         global cache_filename
         cache_filename = cache_file
@@ -145,6 +143,11 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
             cache.clear()
     if not cache and use_cache:
         cache_read()
+
+def solve(in_stack, out_stack, use_cache=True, use_pick=True,
+          cache_file=None, convert=True, target=None):
+    use_ops = _choose_ops(use_pick, target)
+    _handle_cache(use_cache, cache_file)
     s_in, s_out = convert_stacks(in_stack, out_stack)
 
     key = make_cache_key(s_in, s_out, use_pick)
