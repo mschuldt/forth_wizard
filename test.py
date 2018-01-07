@@ -22,17 +22,17 @@ def check(note, result, expected, in_stack, out_stack):
         print( '  got: ', result)
         exit(1)
 
-def test(in_stack, out_stack, expected, use_pick=True, target=None):
+def test(in_stack, out_stack, expected, use_pick=True, target=None, in_rstack=None):
     target = target or ""
     cache_name = cache_filename(target)
     result = wiz.solve( in_stack, out_stack, use_cache=False, use_pick=use_pick,
-                        target=target )
+                        in_rstack=in_rstack, target=target )
     check('no cache', result, expected, in_stack, out_stack)
     result = wiz.solve( in_stack, out_stack, use_cache=True, use_pick=use_pick,
-                        cache_file=cache_name, target=target )
+                        cache_file=cache_name, target=target, in_rstack=in_rstack )
     check('with cache, 1st', result, expected, in_stack, out_stack)
     result = wiz.solve( in_stack, out_stack, use_cache=True, use_pick=use_pick,
-                        cache_file=cache_name, target=target )
+                        cache_file=cache_name, target=target, in_rstack=in_rstack )
     check('with cache, 2st', result, expected, in_stack, out_stack)
 
 def runtests():
@@ -76,6 +76,11 @@ def runtests():
     test(a, b, ['>r', '2over', 'drop', '>r', '2r>'], use_pick=False)
     test([0,1,2,3], [0,1,2,3,1,2,3], ['3dup'])
     #test(['x', 'y'], ['x','error', 'y'], ['swap', 'dup'])
+    test([], [0], ['r>'], in_rstack=[0])
+    test([], [0, 1], ['2r>'], in_rstack=[0, 1])
+    test([0], [0], ['r>', 'drop'], in_rstack=[1])
+    test([0], [1, 0], ['>r', '2r>'], in_rstack=[1])
+    test([], [0, 1], ['r>', 'r>'], in_rstack=[1, 0])
 
 if __name__ == '__main__':
 
