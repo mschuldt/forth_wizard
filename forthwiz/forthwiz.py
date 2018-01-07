@@ -1,8 +1,9 @@
 import chuckmoore as wizard
 from .ops import *
+from .version import version
 from os import path
 
-cache_filename = 'forth_wizard_cache.txt'
+cache_filename = None
 current_cache_filename = None
 n_ops = 0 # ops added to solver
 
@@ -135,13 +136,15 @@ def _choose_ops(use_pick, target):
         use_ops = ops if use_pick else not_pick_ops
     return use_ops
 
-def _handle_cache(use_cache, cache_file):
+def _handle_cache(use_cache, cache_file, ops):
+    global cache_filename
     if cache_file:
-        global cache_filename
         cache_filename = cache_file
         if cache_filename != current_cache_filename:
             cache.clear()
-    if not cache and use_cache:
+        cache_read()
+    elif not cache and use_cache:
+        cache_filename = get_cache_filename(ops)
         cache_read()
 
 def solve(in_stack, out_stack, use_cache=True, use_pick=True,
@@ -149,7 +152,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     global n_ops
     n_ops = 0
     use_ops = _choose_ops(use_pick, target)
-    _handle_cache(use_cache, cache_file)
+    _handle_cache(use_cache, cache_file, use_ops)
     s_in, s_out = convert_stacks(in_stack, out_stack)
 
     key = make_cache_key(s_in, s_out, use_pick)
@@ -181,6 +184,12 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     return code if convert else cache_code
 
 cache = {}
+
+def get_cache_filename(used_ops):
+    base = 'wizard_cache_{}_{}.txt'
+    v_str = version.replace(".", "_")
+    op_str = "".join([ '1' if op in used_ops else '0' for op in used_ops])
+    return base.format(v_str, hex(int('0b'+op_str,2))[2:])
 
 def cache_read():
     if not path.exists(cache_filename):
