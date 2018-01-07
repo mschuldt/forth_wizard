@@ -146,6 +146,8 @@ def _handle_cache(use_cache, cache_file):
 
 def solve(in_stack, out_stack, use_cache=True, use_pick=True,
           cache_file=None, convert=True, target=None):
+    global n_ops
+    n_ops = 0
     use_ops = _choose_ops(use_pick, target)
     _handle_cache(use_cache, cache_file)
     s_in, s_out = convert_stacks(in_stack, out_stack)
