@@ -64,7 +64,8 @@ def runtests():
     a=[0, 1, 2]
     b=[0, 2, 0, 1]
     test(a,b, ['2', 'pick', 'rot'])
-    test(a,b, ['swap', '>r', 'over', 'r>'], use_pick=False)
+    test(a,b, ['swap', '>r', 'over', 'r>'], use_pick=False, target='gforth')
+    test(a,b, ['3dup', '2drop', 'rot'], use_pick=False)
     a=[0, 1, 2, 3]
     b=[0, 1, 2, 3, 1]
     test(a, b, ['2', 'pick'])
@@ -73,6 +74,7 @@ def runtests():
     b=[0, 1, 2, 3, 4, 5, 1]
     test(a, b, ['4', 'pick'])
     test(a, b, ['>r', '2over', 'drop', '>r', '2r>'], use_pick=False)
+    test([0,1,2,3], [0,1,2,3,1,2,3], ['3dup'])
     #test(['x', 'y'], ['x','error', 'y'], ['swap', 'dup'])
 
 if __name__ == '__main__':
