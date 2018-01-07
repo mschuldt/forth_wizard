@@ -184,6 +184,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     if n_in != s_in or r_in != rn_in or n_out != s_out:
         wizard.reset_solver()
         wizard.set_stack_in(n_in)
+        wizard.set_rstack_in(rn_in)
         wizard.set_stack_out(n_out)
         wizard.set_code([ops.index(c) for c in cache_code])
         if wizard.verify():
