@@ -3,7 +3,16 @@
 import forthwiz as wiz
 import os
 
-test_cache_file = "__TEST_CACHE_FILE__"
+test_cache_file_base = "__TEST_CACHE_FILE__"
+cache_files = set()
+
+def make_cache_filename(target):
+    return test_cache_file_base + target
+
+def cache_filename(target):
+    n = make_cache_filename(target)
+    cache_files.add(n)
+    return n
 
 def check(note, result, expected, in_stack, out_stack):
     if result != expected:
@@ -13,14 +22,17 @@ def check(note, result, expected, in_stack, out_stack):
         print( '  got: ', result)
         exit(1)
 
-def test(in_stack, out_stack, expected, use_pick=True):
-    result = wiz.solve( in_stack, out_stack, use_cache=False, use_pick=use_pick )
+def test(in_stack, out_stack, expected, use_pick=True, target=None):
+    target = target or ""
+    cache_name = cache_filename(target)
+    result = wiz.solve( in_stack, out_stack, use_cache=False, use_pick=use_pick,
+                        target=target )
     check('no cache', result, expected, in_stack, out_stack)
-    result = wiz.solve( in_stack, out_stack, use_cache=True,
-                        use_pick=use_pick, cache_file=test_cache_file )
+    result = wiz.solve( in_stack, out_stack, use_cache=True, use_pick=use_pick,
+                        cache_file=cache_name, target=target )
     check('with cache, 1st', result, expected, in_stack, out_stack)
-    result = wiz.solve( in_stack, out_stack, use_cache=True,
-                        use_pick=use_pick, cache_file=test_cache_file )
+    result = wiz.solve( in_stack, out_stack, use_cache=True, use_pick=use_pick,
+                        cache_file=cache_name, target=target )
     check('with cache, 2st', result, expected, in_stack, out_stack)
 
 def runtests():
@@ -65,12 +77,15 @@ def runtests():
 
 if __name__ == '__main__':
 
-    if os.path.exists(test_cache_file):
-        os.remove(test_cache_file)
+    for target in list(wiz.target_ops.keys())+[""]:
+        name = make_cache_filename(target)
+        if os.path.exists(target):
+            os.remove(target)
 
     runtests()
 
-    assert os.path.exists(test_cache_file), "cache file was not created"
-    os.remove(test_cache_file)
+    for name in cache_files:
+        assert os.path.exists(name), "cache file was not created: " + name
+        os.remove(name)
 
     print("ok")
