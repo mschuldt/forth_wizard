@@ -17,8 +17,8 @@ typedef struct Op {
 Slice *stack;
 Slice *rstack;
 Slice *stack_in;
+Slice *rstack_in;
 Slice *stack_out;
-//Slice *rstack_in;
 Slice **stack_history;
 Slice **rstack_history;
 
@@ -417,8 +417,9 @@ void collect_unique_symbols() {
 
 void validate_stacks() {
   for(int i = 0; i < stack_out->len; i++ ) {
-    if ( !stack_member(stack_in, stack_out->data[i] ) ) {
-      printf("ERROR: output stack value not present in input stack\n");
+    if ( !stack_member(stack_in, stack_out->data[i] )
+         || !stack_member(rstack_in, stack_out->data[i] )) {
+      printf("ERROR: output stack value not present in input stacks\n");
       exit(1);
     }
   }
@@ -436,7 +437,7 @@ bool check_symbols()
 }
 
 bool noop(int n) {
-  if(!rstack->len && slice_equal(stack, stack_in)){
+  if(slice_equal(stack, stack_in) && slice_equal(rstack, rstack_in)){
     return true;
   }
   for ( int i=0; i < n; i++ ){
@@ -448,7 +449,7 @@ bool noop(int n) {
 
 bool verify_code() {
   slice_copy(stack, stack_in);
-  slice_clear(rstack);
+  slice_copy(rstack, rstack_in);
 
   for(int i = 0; i < code->len; i++) {
     if( !_ops[code->data[i]]()
@@ -481,7 +482,9 @@ bool solve_next() {
     printf("Error: calling solve before adding ops\n");
     exit(1);
   }
-  if (slice_equal(stack_in, stack_out)){
+  // case for when in and out states are the same
+  if (slice_equal(stack_in, stack_out)
+      && rstack_in->len == 0){
     slice_clear(code);
     return true;
   }
@@ -514,6 +517,13 @@ void set_stack_in( int *values, int len ) {
   //slice_print(stack_in);
 }
 
+void set_rstack_in( int *values, int len ) {
+
+  for (int i = 0; i < len; i++) {
+    slice_push(rstack_in, values[i]);
+  }
+}
+
 void set_stack_out( int *values, int len ) {
 
   for (int i = 0; i < len; i++) {
@@ -536,6 +546,7 @@ void reset_solver() {
 void reset() {
   reset_solver();
   slice_clear(stack_in);
+  slice_clear(rstack_in);
   slice_clear(stack_out);
   n_ops_used = 0;
 }
@@ -548,6 +559,7 @@ void init() {
   stack_size=23;
   max_code_length = 10;
   stack_in = new_slice(stack_size);
+  rstack_in = new_slice(stack_size);
   stack_out = new_slice(stack_size);
   stack = new_slice(stack_size);
   rstack = new_slice(stack_size);

@@ -24,6 +24,16 @@ static PyObject* wiz_set_stack_in(PyObject* self, PyObject* args) {
   return Py_BuildValue("i", 1);
 }
 
+static PyObject* wiz_set_rstack_in(PyObject* self, PyObject* args) {
+  PyObject * tuple;
+
+  if (! PyArg_ParseTuple( args, "O", &tuple)) {
+    return NULL;
+  }
+  copy_to_slice(tuple, rstack_in);
+  return Py_BuildValue("i", 1);
+}
+
 static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
   PyObject * tuple;
 
@@ -110,6 +120,7 @@ static char todo_docs[] = "TODO\n";
 
 static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS, todo_docs},
                                     {"set_stack_in", (PyCFunction)wiz_set_stack_in, METH_VARARGS, todo_docs},
+                                    {"set_rstack_in", (PyCFunction)wiz_set_rstack_in, METH_VARARGS, todo_docs},
                                     {"set_stack_out", (PyCFunction)wiz_set_stack_out, METH_VARARGS, todo_docs},
                                     {"set_code", (PyCFunction)wiz_set_code, METH_VARARGS, todo_docs},
                                     {"solve", (PyCFunction)wiz_solve, METH_NOARGS, todo_docs},
