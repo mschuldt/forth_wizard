@@ -7,14 +7,15 @@ cache_filename = None
 current_cache_filename = None
 n_ops = 0 # ops added to solver
 
-def normalize_stacks(in_stack, out_stack):
+def normalize_stacks(in_stack, in_rstack, out_stack):
     for i, n in enumerate(out_stack):
         if out_stack[i] != i: break
         if out_stack.count(n) != 1:
             in_stack = [x - n for x in in_stack[i:]]
+            in_rstack = [x - n for x in in_rstack[i:]]
             out_stack = [x - n for x in out_stack[i:]]
             break
-    return in_stack, out_stack
+    return in_stack, in_rstack, out_stack
 
 def convert_stacks(*stacks):
     symbols = {}
@@ -124,8 +125,9 @@ def find_solution(ops):
 # solution is still unchanged with normalized stacks, if it is then cache the
 # result using the normalized stacks, otherwise cache using the original stacks.
 
-def make_cache_key(s_in, s_out, use_pick):
-    return tuple([-2 if use_pick else -3 ] + s_in + [-1] + s_out)
+def make_cache_key(s_in, r_in, s_out, use_pick):
+    sep = [-1]
+    return tuple([-2 if use_pick else -3 ] + s_in + sep + r_in + sep + s_out)
 
 def _choose_ops(use_pick, target):
     if target:
@@ -152,16 +154,17 @@ def _handle_cache(use_cache, cache_file, ops):
         cache_read()
 
 def solve(in_stack, out_stack, use_cache=True, use_pick=True,
-          cache_file=None, convert=True, target=None):
+          cache_file=None, convert=True, target=None,
+          in_rstack=None):
     global n_ops
     n_ops = 0
     use_ops = _choose_ops(use_pick, target)
     _handle_cache(use_cache, cache_file, use_ops)
-    s_in, s_out = convert_stacks(in_stack, out_stack)
+    s_in, r_in, s_out = convert_stacks(in_stack, in_rstack, out_stack)
 
-    key = make_cache_key(s_in, s_out, use_pick)
-    n_in, n_out = normalize_stacks(s_in, s_out)
-    n_key = make_cache_key(n_in, n_out, use_pick)
+    key = make_cache_key(s_in, r_in, s_out, use_pick)
+    n_in, rn_in, n_out = normalize_stacks(s_in, r_in, s_out)
+    n_key = make_cache_key(n_in, r_in, n_out, use_pick)
     if use_cache:
         code = cache.get(key)
         if code:
@@ -172,12 +175,13 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     # find solution using the original stacks
     wizard.init()
     wizard.set_stack_in(s_in)
+    wizard.set_rstack_in(r_in)
     wizard.set_stack_out(s_out)
     code, cache_code = find_solution(use_ops)
     if not code or not use_cache:
         return code if convert else cache_code
     # check that solution is valid with normalized stacks
-    if n_in != s_in or n_out != s_out:
+    if n_in != s_in or r_in != rn_in or n_out != s_out:
         wizard.reset_solver()
         wizard.set_stack_in(n_in)
         wizard.set_stack_out(n_out)
