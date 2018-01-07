@@ -16,7 +16,7 @@ def normalize_stacks(in_stack, out_stack):
             break
     return in_stack, out_stack
 
-def convert_stacks(in_stack, out_stack):
+def convert_stacks(*stacks):
     symbols = {}
     counter = 0
     def convert(symbol):
@@ -25,9 +25,13 @@ def convert_stacks(in_stack, out_stack):
             symbols[ symbol ] = counter
             counter += 1
         return symbols[ symbol ]
-    s_in = [convert(s) for s in in_stack]
-    s_out = [convert(s) for s in out_stack]
-    return s_in, s_out
+    ret = []
+    for i, stack in enumerate(stacks):
+        if stack:
+            ret.append([convert(s) for s in stack])
+        else:
+            ret.append([])
+    return ret
 
 def set_stacks(in_stack, out_stack):
     s_in, s_out = convert_stacks(in_stack, out_stack)
