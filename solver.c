@@ -516,7 +516,13 @@ bool verify_code() {
     slice_copy(stack_history[i], stack);
     slice_copy(rstack_history[i], rstack);
   }
-  return ( rstack->len == 0 ) && slice_equal(stack, stack_out);
+  if (slice_post_equal(stack, stack_out) // check that top of the stack matches
+      && check_stack_repeats()
+      && check_extra_vars()
+      && check_rstack_repeats()){
+    return true;
+  }
+  return false;
 }
 
 void add_all_ops() {
