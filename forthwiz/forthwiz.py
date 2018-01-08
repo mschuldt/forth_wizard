@@ -6,6 +6,8 @@ from os import path
 cache_filename = None
 current_cache_filename = None
 n_ops = 0 # ops added to solver
+symbols = {}
+symbol_counter = 0
 
 def normalize_stacks(in_stack, in_rstack, out_stack, vars_out):
     for i, n in enumerate(out_stack):
@@ -19,13 +21,14 @@ def normalize_stacks(in_stack, in_rstack, out_stack, vars_out):
     return in_stack, in_rstack, out_stack, vars_out
 
 def convert_stacks(*stacks):
-    symbols = {}
-    counter = 0
+    global symbol_counter
+    symbols.clear()
+    symbol_counter = 0
     def convert(symbol):
-        nonlocal counter
+        global symbol_counter
         if symbol not in symbols:
-            symbols[ symbol ] = counter
-            counter += 1
+            symbols[ symbol ] = symbol_counter
+            symbol_counter += 1
         return symbols[ symbol ]
     ret = []
     for i, stack in enumerate(stacks):
