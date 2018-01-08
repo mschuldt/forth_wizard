@@ -52,6 +52,25 @@ int slice_equal(Slice *in, Slice *out) {
   return true;
 }
 
+int slice_post_equal(Slice *slice, Slice *post) {
+  // test that the n items from Slice POST match
+  // the last n items from Slice SLICE
+  int post_end = post->len - 1;
+  int slice_end = slice->len - 1;
+  if (post_end < 0){
+    return true;
+  }
+  if (post_end > slice_end){
+    return false;
+  }
+  for (int i=post_end; i>=0; i--){
+    if (slice->data[slice_end-i] != post->data[post_end-i]){
+      return false;
+    }
+  }
+  return true;
+}
+
 Slice* slice_clone(Slice *in) {
   Slice *s = new_slice(in->cap);
   int len = in->len;
