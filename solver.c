@@ -456,6 +456,53 @@ bool noop(int n) {
   return false;
 }
 
+static inline bool
+check_stack_repeats(){
+  // check that symbols below stack_out values are not repeats
+  // of values in stack_out
+  int end = stack_out->len;
+  int len = stack->len;
+  for (int i = 0; i < end; i++){ // for item in bottom portion
+    int sym = stack->data[i];
+    for (int j=end; j<len; j++ ){ // for item in top portion
+      if (sym == stack->data[j]){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+static inline bool
+check_extra_vars(){
+  // check that only values present in vars_out
+  // are present in the stacks
+  for (int i=0; i<stack->len; i++){
+    if (!slice_member(vars_out, stack->data[i])){
+      return false;
+    }
+  }
+  for (int i=0; i<rstack->len; i++){
+    if (!slice_member(vars_out, rstack->data[i])){
+      return false;
+    }
+  }
+  return true;
+}
+
+static inline bool
+check_rstack_repeats(){
+  // check that all symbols present in the rstack are
+  // not repeated on the data stack
+  int len = rstack->len;
+  for(int i=0; i<len; i++){
+    if (slice_member(stack, rstack->data[i])){
+      return false;
+    }
+  }
+  return true;
+}
+
 bool verify_code() {
   slice_copy(stack, stack_in);
   slice_copy(rstack, rstack_in);
