@@ -126,7 +126,7 @@ bool member(char *s, unsigned int len, char n) {
   return false;
 }
 
-static inline bool stack_member(Slice* s, char n) {
+static inline bool slice_member(Slice* s, char n) {
   return member(s->data, s->len, n);
 }
 
@@ -426,8 +426,8 @@ void skip_code(int n) {
 
 void validate_stacks() {
   for(int i = 0; i < stack_out->len; i++ ) {
-    if ( !stack_member(stack_in, stack_out->data[i] )
-         || !stack_member(rstack_in, stack_out->data[i] )) {
+    if ( !slice_member(stack_in, stack_out->data[i] )
+         || !slice_member(rstack_in, stack_out->data[i] )) {
       printf("ERROR: output stack value not present in input stacks\n");
       exit(1);
     }
@@ -438,8 +438,8 @@ void validate_stacks() {
 bool check_symbols()
 {
   for (int i = 0; i < vars_out->len; i++) {
-    if(!stack_member(stack, vars_out->data[i])
-       && !stack_member(rstack, vars_out->data[i]))
+    if(!slice_member(stack, vars_out->data[i])
+       && !slice_member(rstack, vars_out->data[i]))
       return false;
   }
   return true;
