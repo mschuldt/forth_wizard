@@ -17,6 +17,8 @@ def normalize_stacks(in_stack, in_rstack, out_stack, vars_out):
             in_rstack = [x - n for x in in_rstack[i:]]
             out_stack = [x - n for x in out_stack[i:]]
             vars_out = [x - n for x in vars_out[i:]]
+            for s, v in symbols.items():
+                symbols[s] = v - n
             break
     return in_stack, in_rstack, out_stack, vars_out
 
@@ -34,6 +36,16 @@ def convert_stacks(*stacks):
     for i, stack in enumerate(stacks):
         if stack:
             ret.append([convert(s) for s in stack])
+        else:
+            ret.append([])
+    return ret
+
+def convert_stacks_back(*stacks):
+    mapping = {v:k for k,v in symbols.items()}
+    ret = []
+    for stack in stacks:
+        if stack:
+            ret.append([mapping[v] for v in stack])
         else:
             ret.append([])
     return ret
@@ -153,6 +165,10 @@ def _handle_cache(use_cache, cache_file, ops):
         cache_filename = get_cache_filename(ops)
         cache_read()
 
+class Solution:
+    def __init__(self, code, stack, rstack):
+        self.code, self.stack, self.rstack = code, stack, rstack
+
 def solve(in_stack, out_stack, use_cache=True, use_pick=True,
           cache_file=None, convert=True, target=None,
           in_rstack=None, out_vars=None):
@@ -173,10 +189,12 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     if use_cache:
         code = cache.get(key)
         if code:
-            return convert_code(code) if convert else code
+            ret_code = convert_code(code) if convert else code
+            return return_value(ret_code, return_full)
         code = cache.get(n_key)
         if code:
-            return convert_code(code) if convert else code
+            ret_code = convert_code(code) if convert else code
+            return return_value(ret_code, return_full)
     # find solution using the original stacks
     wizard.init()
     wizard.set_stack_in(s_in)
@@ -185,7 +203,8 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     wizard.set_vars_out(v_out)
     code, cache_code = find_solution(use_ops)
     if not code or not use_cache:
-        return code if convert else cache_code
+        ret_code = code if convert else cache_code
+        return return_value(ret_code, return_full)
     # check that the solution is valid with normalized stacks
     if n_in != s_in or r_in != rn_in or n_out != s_out:
         wizard.reset_solver()
@@ -197,7 +216,16 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
         if wizard.verify():
             key = n_key
     cache_save(key, cache_code)
-    return code if convert else cache_code
+    ret_code = code if convert else cache_code
+    return return_value(ret_code, return_full)
+
+def return_value(code, return_full):
+    if return_full:
+        x = convert_stacks_back(wizard.get_stack(),
+                                wizard.get_return_stack())
+        stack, rstack = x
+        return Solution(code, stack, rstack)
+    return code
 
 cache = {}
 
