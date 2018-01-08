@@ -19,12 +19,12 @@ Slice *rstack;
 Slice *stack_in;
 Slice *rstack_in;
 Slice *stack_out;
+Slice *vars_out;
 Slice **stack_history;
 Slice **rstack_history;
 
 Slice *code;
 Slice *solution;
-Slice *unique_symbols;
 
 int max_code_length = 15;
 int stack_size = 30;
@@ -405,16 +405,6 @@ void skip_code(int n) {
   }
 }
 
-void collect_unique_symbols() {
-  slice_clear(unique_symbols);
-  int len = stack_out->len;
-  for(int i = 0; i < len; i++) {
-    if( !stack_member(unique_symbols, stack_out->data[i])) {
-      slice_push(unique_symbols, stack_out->data[i]);
-    }
-  }
-}
-
 void validate_stacks() {
   for(int i = 0; i < stack_out->len; i++ ) {
     if ( !stack_member(stack_in, stack_out->data[i] )
@@ -428,9 +418,9 @@ void validate_stacks() {
 // check that all symbols are present in at least one of the stacks
 bool check_symbols()
 {
-  for (int i = 0; i < unique_symbols->len; i++) {
-    if(!stack_member(stack, unique_symbols->data[i])
-       && !stack_member(rstack, unique_symbols->data[i]))
+  for (int i = 0; i < vars_out->len; i++) {
+    if(!stack_member(stack, vars_out->data[i])
+       && !stack_member(rstack, vars_out->data[i]))
       return false;
   }
   return true;
@@ -529,7 +519,6 @@ void set_stack_out( int *values, int len ) {
   for (int i = 0; i < len; i++) {
     slice_push(stack_out, values[i]);
   }
-  collect_unique_symbols();
   validate_stacks();
   //printf("out stack\n");
   //slice_print(stack_out);
@@ -563,7 +552,7 @@ void init() {
   stack_out = new_slice(stack_size);
   stack = new_slice(stack_size);
   rstack = new_slice(stack_size);
-  unique_symbols = new_slice(stack_size);
+  vars_out = new_slice(stack_size);
   stack_history = (Slice**)calloc(sizeof(Slice*), max_code_length);
   rstack_history = (Slice**)calloc(sizeof(Slice*), max_code_length);
   for(int i = 0; i < max_code_length; i++) {

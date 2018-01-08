@@ -43,6 +43,15 @@ static PyObject* wiz_set_stack_out(PyObject* self, PyObject* args) {
   copy_to_slice(tuple, stack_out);
   return Py_BuildValue("i", 1);
 }
+static PyObject* wiz_set_vars_out(PyObject* self, PyObject* args) {
+  PyObject * tuple;
+
+  if (! PyArg_ParseTuple( args, "O", &tuple)) {
+    return NULL;
+  }
+  copy_to_slice(tuple, vars_out);
+  return Py_BuildValue("i", 1);
+}
 
 static PyObject* wiz_set_code(PyObject* self, PyObject* args) {
   PyObject * tuple;
@@ -122,6 +131,7 @@ static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS,
                                     {"set_stack_in", (PyCFunction)wiz_set_stack_in, METH_VARARGS, todo_docs},
                                     {"set_rstack_in", (PyCFunction)wiz_set_rstack_in, METH_VARARGS, todo_docs},
                                     {"set_stack_out", (PyCFunction)wiz_set_stack_out, METH_VARARGS, todo_docs},
+                                    {"set_vars_out", (PyCFunction)wiz_set_vars_out, METH_VARARGS, todo_docs},
                                     {"set_code", (PyCFunction)wiz_set_code, METH_VARARGS, todo_docs},
                                     {"solve", (PyCFunction)wiz_solve, METH_NOARGS, todo_docs},
                                     {"set_stack_size", (PyCFunction)wiz_set_stack_size, METH_O, todo_docs},
