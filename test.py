@@ -35,6 +35,19 @@ def test(in_stack, out_stack, expected, use_pick=True, target=None, in_rstack=No
                         cache_file=cache_name, target=target, in_rstack=in_rstack )
     check('with cache, 2st', result, expected, in_stack, out_stack)
 
+def remove_old_cache_files():
+    # remove cache files that may be present from a previous run
+    for target in list(wiz.target_ops.keys())+[""]:
+        name = make_cache_filename(target)
+        if os.path.exists(target):
+            os.remove(target)
+
+def remove_cache_files():
+    # check expected cache files where created and move them
+    for name in cache_files:
+        assert os.path.exists(name), "cache file was not created: " + name
+        os.remove(name)
+
 def runtests():
     test(['a', 'b'], ['a', 'b', 'b'], ['dup'])
     test(['t1', 't2'], ['t1'], ['drop'])
@@ -84,15 +97,8 @@ def runtests():
 
 if __name__ == '__main__':
 
-    for target in list(wiz.target_ops.keys())+[""]:
-        name = make_cache_filename(target)
-        if os.path.exists(target):
-            os.remove(target)
-
+    remove_old_cache_files()
     runtests()
-
-    for name in cache_files:
-        assert os.path.exists(name), "cache file was not created: " + name
-        os.remove(name)
+    remove_cache_files()
 
     print("ok")
