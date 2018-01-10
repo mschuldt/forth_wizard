@@ -48,6 +48,13 @@ def runtests():
     test([0], [0], ['r>', 'drop'], in_rstack=[1])
     test([0], [1, 0], ['>r', '2r>'], in_rstack=[1])
     test([], [0, 1], ['r>', 'r>'], in_rstack=[1, 0])
+    #test return stack
+    a=['a','b','c','h','i']
+    out_vars = ['a', 'h', 'i']
+    out_top=['a','h']
+    test(a, out_top, ['2swap', '2drop', '-rot'],out_vars=out_vars, use_rstack=False, out_rstack=[])
+    test(a, out_top, ['>r', 'nip', 'nip'], out_vars=out_vars, use_rstack=True, out_rstack=['i'])
+    test([0], [0,1], ['r>'], in_rstack=[2,1], out_vars=[0,1,2], use_rstack=True, out_rstack=[2])
 
 if __name__ == '__main__':
 
