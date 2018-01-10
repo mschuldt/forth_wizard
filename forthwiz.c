@@ -125,6 +125,11 @@ static PyObject* wiz_verify(PyObject* self) {
   return Py_BuildValue("i", ok);
 }
 
+static PyObject* wiz_use_rstack(PyObject* self, PyObject* size) {
+  use_rstack = PyLong_AsLong(size) ? true : false;
+  return Py_BuildValue("i", use_rstack);
+}
+
 static char todo_docs[] = "TODO\n";
 
 static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS, todo_docs},
@@ -141,6 +146,7 @@ static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS,
                                     {"reset", (PyCFunction)wiz_reset, METH_NOARGS, todo_docs},
                                     {"reset_solver", (PyCFunction)wiz_reset_solver, METH_NOARGS, todo_docs},
                                     {"verify", (PyCFunction)wiz_verify, METH_NOARGS, todo_docs},
+                                    {"use_rstack", (PyCFunction)wiz_use_rstack, METH_O, todo_docs},
                                     {NULL, NULL, 0, NULL}
 };
 

@@ -171,7 +171,9 @@ class Solution:
 
 def solve(in_stack, out_stack, use_cache=True, use_pick=True,
           cache_file=None, convert=True, target=None,
-          in_rstack=None, out_vars=None):
+          in_rstack=None, out_vars=None, use_rstack=False):
+    if use_rstack:
+        assert out_vars, "setting use_rstack without specifying out_vars"
     global n_ops
     n_ops = 0
     if out_vars is None:
@@ -183,9 +185,9 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     _handle_cache(use_cache, cache_file, use_ops)
     s_in, r_in, s_out, v_out = convert_stacks(in_stack, in_rstack, out_stack, out_vars)
 
-    key = make_cache_key(s_in, r_in, s_out, v_out, use_pick, return_full)
+    key = make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack, return_full)
     n_in, rn_in, n_out, vn_out = normalize_stacks(s_in, r_in, s_out, v_out)
-    n_key = make_cache_key(n_in, r_in, n_out, vn_out, use_pick, return_full)
+    n_key = make_cache_key(n_in, r_in, n_out, vn_out, use_pick, use_rstack, return_full)
     if use_cache:
         code = cache.get(key)
         if code:
@@ -201,6 +203,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
     wizard.set_rstack_in(r_in)
     wizard.set_stack_out(s_out)
     wizard.set_vars_out(v_out)
+    wizard.use_rstack(use_rstack)
     code, cache_code = find_solution(use_ops)
     if not code or not use_cache:
         ret_code = code if convert else cache_code
@@ -212,6 +215,7 @@ def solve(in_stack, out_stack, use_cache=True, use_pick=True,
         wizard.set_rstack_in(rn_in)
         wizard.set_stack_out(n_out)
         wizard.set_vars_out(vn_out)
+        wizard.use_rstack(use_rstack)
         wizard.set_code([ops.index(c) for c in cache_code])
         if wizard.verify():
             key = n_key
@@ -229,14 +233,15 @@ def return_value(code, return_full):
 
 cache = {}
 
-def make_cache_key(s_in, r_in, s_out, v_out, use_pick, ret_full):
+def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack, ret_full):
     sep = -1
     if not ret_full:
         # if ret_full is False then the v_out was set from s_out
         # so does not need to be included
         v_out = []
     k = [-2 if use_pick else -3]
-    for x in [s_in, r_in, s_out, v_out]:
+    use_r = [1 if use_rstack else 0]
+    for x in [s_in, r_in, s_out, v_out, use_r]:
         k.append(sep)
         k.extend(x)
     return tuple(k)

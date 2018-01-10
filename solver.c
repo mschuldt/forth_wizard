@@ -30,6 +30,7 @@ int max_code_length = 15;
 int stack_size = 30;
 
 int max_ops;
+bool use_rstack;
 
 Slice* new_slice(int cap) {
   Slice* stack = (Slice*)calloc(sizeof(Slice), 1);
@@ -495,6 +496,9 @@ check_rstack_repeats(){
   // check that all symbols present in the rstack are
   // not repeated on the data stack
   int len = rstack->len;
+  if( !use_rstack && len != 0 ) {
+    return false;
+  }
   for(int i=0; i<len; i++){
     if (slice_member(stack, rstack->data[i])){
       return false;
@@ -610,6 +614,7 @@ void reset() {
   slice_clear(rstack_in);
   slice_clear(stack_out);
   n_ops_used = 0;
+  use_rstack = false;
 }
 
 void init() {
@@ -640,6 +645,7 @@ void init() {
   solution = new_slice(max_code_length);
   slice_push(code,0);
   initialized = true;
+  use_rstack = false;
 }
 
 bool solve() {
