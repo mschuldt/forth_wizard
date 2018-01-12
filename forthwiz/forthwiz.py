@@ -3,9 +3,6 @@ from .ops import *
 from .version import version
 from os import path
 
-cache_filename = None
-current_cache_filename = None
-
 def convert_code(code):
     ret = []
     for x in code:
@@ -41,6 +38,7 @@ class Wizard:
         self.n_ops = 0 # ops added to solver
         self.symbols = {}
         self.symbol_counter = 0
+        self.cache = Cache()
 
     def normalize_stacks(self, in_stack, in_rstack, out_stack, vars_out):
         for i, n in enumerate(out_stack):
@@ -138,17 +136,16 @@ class Wizard:
             # otherwise solutions are tied, don't use pick
         return c_without_pick, without_pick
 
-
     def _handle_cache(self, use_cache, cache_file, ops):
-        global cache_filename
+        cache = self.cache
         if cache_file:
-            cache_filename = cache_file
-            if cache_filename != current_cache_filename:
+            cache.cache_filename = cache_file
+            if cache.cache_filename != cache.current_cache_filename:
                 cache.clear()
-            cache_read()
-        elif not cache and use_cache:
-            cache_filename = get_cache_filename(ops)
-            cache_read()
+            cache.read()
+        elif not cache.cache and use_cache:
+            cache.cache_filename = get_cache_filename(ops)
+            cache.read()
 
 # Stack normalization does not always result in the same answer.
 # for example:
@@ -189,11 +186,11 @@ class Wizard:
         n_in, rn_in, n_out, vn_out = self.normalize_stacks(s_in, r_in, s_out, v_out)
         n_key = make_cache_key(n_in, r_in, n_out, vn_out, use_pick, use_rstack, return_full)
         if use_cache:
-            code = cache.get(key)
+            code = self.cache.get(key)
             if code:
                 ret_code = convert_code(code) if convert else code
                 return self.return_value(ret_code, return_full)
-            code = cache.get(n_key)
+            code = self.cache.get(n_key)
             if code:
                 ret_code = convert_code(code) if convert else code
                 return self.return_value(ret_code, return_full)
@@ -219,7 +216,7 @@ class Wizard:
             wizard.set_code([ops.index(c) for c in cache_code])
             if wizard.verify():
                 key = n_key
-        cache_save(key, cache_code)
+        self.cache.save(key, cache_code)
         ret_code = code if convert else cache_code
         return self.return_value(ret_code, return_full)
 
@@ -230,8 +227,6 @@ class Wizard:
             stack, rstack = x
             return Solution(code, stack, rstack)
         return code
-
-cache = {}
 
 def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack, ret_full):
     sep = -1
@@ -252,20 +247,31 @@ def get_cache_filename(used_ops):
     op_str = "".join([ '1' if op in used_ops else '0' for op in used_ops])
     return base.format(v_str, hex(int('0b'+op_str,2))[2:])
 
-def cache_read():
-    if not path.exists(cache_filename):
-        return
-    with open(cache_filename,'r') as f:
-        for line in f.readlines():
-            k,v = line.split('=')
-            cache[tuple(map(int, k.split()))] = v.split()
-    global current_cache_filename
-    current_cache_filename = cache_filename
+class Cache:
+    def __init__(self):
+        self.cache = {}
+        self.cache_filename = None
+        self.current_cache_filename = None
 
-def cache_save(key, value):
-    cache[key] = value
-    k=' '.join([str(x) for x in key])
-    v=' '.join([str(x) for x in value])
-    flag = 'a' if path.exists(cache_filename) else 'w'
-    with open(cache_filename,flag) as f:
-        f.write('{}={}\n'.format(k,v))
+    def read(self):
+        if not path.exists(self.cache_filename):
+            return
+        with open(self.cache_filename,'r') as f:
+            for line in f.readlines():
+                k,v = line.split('=')
+                self.cache[tuple(map(int, k.split()))] = v.split()
+        self.current_cache_filename = self.cache_filename
+
+    def save(self, key, value):
+        self.cache[key] = value
+        k=' '.join([str(x) for x in key])
+        v=' '.join([str(x) for x in value])
+        flag = 'a' if path.exists(self.cache_filename) else 'w'
+        with open(self.cache_filename,flag) as f:
+            f.write('{}={}\n'.format(k,v))
+
+    def get(self, key):
+        return self.cache.get(key)
+
+    def clear(self):
+        self.cache.clear()
