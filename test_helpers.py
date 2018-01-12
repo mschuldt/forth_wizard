@@ -1,5 +1,5 @@
 
-import forthwiz as wiz
+import forthwiz
 import os
 
 test_cache_file_base = "__TEST_CACHE_FILE__"
@@ -48,6 +48,7 @@ def test(in_stack, out_stack, expected, use_pick=True, target=None, in_rstack=No
 
     target = target or ""
     cache_name = cache_filename(target)
+    wiz = forthwiz.Wizard()
     result = wiz.solve( in_stack, out_stack, use_cache=False, use_pick=use_pick,
                         in_rstack=in_rstack, target=target, out_vars=out_vars,
                         use_rstack=use_rstack )
@@ -63,7 +64,7 @@ def test(in_stack, out_stack, expected, use_pick=True, target=None, in_rstack=No
 
 def remove_old_cache_files():
     # remove cache files that may be present from a previous run
-    for target in list(wiz.target_ops.keys())+[""]:
+    for target in list(forthwiz.target_ops.keys())+[""]:
         name = make_cache_filename(target)
         if os.path.exists(target):
             os.remove(target)
