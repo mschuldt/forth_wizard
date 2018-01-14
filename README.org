@@ -9,6 +9,7 @@ Usage:
 #+BEGIN_SRC python
   $ python3
   >>> import forthwiz
+  >>> forthwiz = forthwiz.Wizard()
   >>> forthwiz.solve( ['a', 'b'], ['b', 'a', 'a'] )
   ['swap', 'dup']
 #+END_SRC
