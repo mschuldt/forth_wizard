@@ -9,8 +9,8 @@ Usage:
 #+BEGIN_SRC python
   $ python3
   >>> import forthwiz
-  >>> forthwiz = forthwiz.Wizard()
-  >>> forthwiz.solve( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> wiz = forthwiz.Wizard()
+  >>> wiz.solve( ['a', 'b'], ['b', 'a', 'a'] )
   ['swap', 'dup']
 #+END_SRC
 ~solve~ takes two lists describing the input and output states of the data stack.
@@ -18,21 +18,21 @@ The items in those lists may be any hashable type.
 
 Use of the =pick= instruction may be disabled:
 #+BEGIN_SRC python
-  >>> forthwiz.solve([0, 1, 2], [0, 2, 0, 1])
+  >>> wiz.solve([0, 1, 2], [0, 2, 0, 1])
   ['2', 'pick', 'rot']
-  >>> forthwiz.solve([0, 1, 2], [0, 2, 0, 1], use_pick=False)
+  >>> wiz.solve([0, 1, 2], [0, 2, 0, 1], use_pick=False)
   ['swap', '>r', 'over', 'r>']
 #+END_SRC
 
 To get multiple solutions specify the input and output stacks with ~set_stacks~
 and use ~solve_next~ to get the next solution in the sequence:
 #+BEGIN_SRC python
-  >>> forthwiz.set_stacks( ['a', 'b'], ['b', 'a', 'a'] )
-  >>> forthwiz.solve_next()
+  >>> wiz.set_stacks( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> wiz.solve_next()
   ['swap', 'dup']
-  >>> forthwiz.solve_next()
+  >>> wiz.solve_next()
   ['over', 'rot']
-  >>> forthwiz.solve_next()
+  >>> wiz.solve_next()
   ['swap', '2dup', 'nip']
 #+END_SRC
 
