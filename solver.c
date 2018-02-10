@@ -551,7 +551,9 @@ bool solve_next() {
   // case for when in and out states are the same
   if (slice_equal(stack_in, stack_out)
       && rstack_in->len == 0){
+    slice_copy(stack, stack_in);
     slice_clear(code);
+    slice_clear(rstack);
     return true;
   }
   while( code->len <= max_code_length ) {
