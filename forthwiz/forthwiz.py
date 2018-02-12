@@ -137,24 +137,34 @@ class Wizard:
     def solve(self, in_stack, out_stack, use_cache=True, use_pick=True,
               cache_file=None, convert=True, target=None,
               in_rstack=None, out_vars=None, use_rstack=False):
+        solution = self._solve(in_stack, out_stack, use_cache=use_cache, use_pick=use_pick,
+                               cache_file=cache_file, convert=convert, target=target,
+                               in_rstack=in_rstack, out_vars=out_vars, use_rstack=use_rstack)
+        if out_vars is None:
+            return solution.code
+        return solution
+
+    def _solve(self, in_stack, out_stack, use_cache=True, use_pick=True,
+              cache_file=None, convert=True, target=None,
+              in_rstack=None, out_vars=None, use_rstack=False):
         if use_rstack:
             assert out_vars, "setting use_rstack without specifying out_vars"
         self.n_ops = 0
         if out_vars is None:
-            return_full = False
             out_vars = list(set(out_stack))
-        else:
-            return_full = True
         use_ops = _choose_ops(use_pick, target)
         self._handle_cache(use_cache, cache_file, use_ops)
         s_in, r_in, s_out, v_out = self.convert_stacks(in_stack, in_rstack, out_stack, out_vars)
-        key = make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack, return_full)
+        key = make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack)
 
         if use_cache:
-            code = self.cache.get(key)
-            if code:
-                ret_code = convert_code(code) if convert else code
-                return self.return_value(ret_code, return_full)
+            solution = self.cache.get(key)
+            if solution:
+                solution.stack = self.convert_stacks_back(solution.stack)[0]
+                solution.rstack = self.convert_stacks_back(solution.rstack)[0]
+                if convert:
+                    solution.code = convert_code(solution.code)
+                return solution
 
         wizard.init()
         wizard.set_stack_in(s_in)
@@ -163,28 +173,19 @@ class Wizard:
         wizard.set_vars_out(v_out)
         wizard.use_rstack(use_rstack)
         code, cache_code = self.find_solution(use_ops)
+        solution_stack = wizard.get_stack()
+        solution_rstack = wizard.get_return_stack()
+        stacks = self.convert_stacks_back(solution_stack, solution_rstack)
         if not code or not use_cache:
             ret_code = code if convert else cache_code
-            return self.return_value(ret_code, return_full)
-        #TODO: should check use_cache before saving to the cache
-        self.cache.save(key, cache_code)
+            return Solution(ret_code, stacks[0], stacks[1])
+
+        self.cache.save(key, cache_code, solution_stack, solution_rstack)
         ret_code = code if convert else cache_code
-        return self.return_value(ret_code, return_full)
+        return Solution(ret_code, stacks[0], stacks[1])
 
-    def return_value(self, code, return_full):
-        if return_full:
-            x = self.convert_stacks_back(wizard.get_stack(),
-                                         wizard.get_return_stack())
-            stack, rstack = x
-            return Solution(code, stack, rstack)
-        return code
-
-def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack, ret_full):
+def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack):
     sep = -1
-    if not ret_full:
-        # if ret_full is False then the v_out was set from s_out
-        # so does not need to be included
-        v_out = []
     k = [-2 if use_pick else -3]
     use_r = [1 if use_rstack else 0]
     for x in [s_in, r_in, s_out, v_out, use_r]:
@@ -205,21 +206,29 @@ class Cache:
         self.current_cache_filename = None
 
     def read(self):
+        def read_elts(x):
+            return list(map(int,x.split()))
         if not path.exists(self.cache_filename):
             return
         with open(self.cache_filename,'r') as f:
             for line in f.readlines():
                 k,v = line.split('=')
-                self.cache[tuple(map(int, k.split()))] = v.split()
+                code, stack, rstack = v.split('&')
+                s = Solution(code.split(), read_elts(stack), read_elts(rstack))
+                self.cache[tuple(map(int, k.split()))] = s
         self.current_cache_filename = self.cache_filename
 
-    def save(self, key, value):
+    def save(self, key_, code_, stack_, rstack_):
+        def join(lst):
+            if not lst:
+                return ''
+            return ' '.join([str(x) for x in lst])
+        value="&".join([join(code_), join(stack_), join(rstack_)])
+        key = join(key_)
         self.cache[key] = value
-        k=' '.join([str(x) for x in key])
-        v=' '.join([str(x) for x in value])
         flag = 'a' if path.exists(self.cache_filename) else 'w'
         with open(self.cache_filename,flag) as f:
-            f.write('{}={}\n'.format(k,v))
+            f.write('{}={}\n'.format(key, value))
 
     def get(self, key):
         return self.cache.get(key)
