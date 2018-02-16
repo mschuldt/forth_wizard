@@ -604,6 +604,10 @@ void set_stack_out( int *values, int len ) {
 
 bool initialized = false;
 
+void reset_ops() {
+  n_ops_used = 0;
+}
+
 void reset_solver() {
      slice_clear(code);
      slice_push(code,0);
@@ -615,7 +619,7 @@ void reset() {
   slice_clear(stack_in);
   slice_clear(rstack_in);
   slice_clear(stack_out);
-  n_ops_used = 0;
+  reset_ops();
   use_rstack = false;
 }
 

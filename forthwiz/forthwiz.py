@@ -99,6 +99,7 @@ class Wizard:
         for o in ops:
             (ops_with_pick if o in pick_ops else ops_without_pick).append(o)
         # find solution without pick
+        wizard.reset_ops()
         self.add_ops(ops_without_pick)
         without_pick = self.solve_next()
         c_without_pick = convert_code(without_pick)
