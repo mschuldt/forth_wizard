@@ -123,7 +123,7 @@ class Wizard:
             # otherwise solutions are tied, don't use pick
         return c_without_pick, without_pick
 
-    def _handle_cache(self, use_cache, cache_file, ops):
+    def _setup_cache(self, use_cache, cache_file, ops):
         cache = self.cache
         if cache_file:
             cache.cache_filename = cache_file
@@ -155,7 +155,7 @@ class Wizard:
         if out_vars is None:
             out_vars = list(set(out_stack))
         self.use_ops = _choose_ops(use_pick, target)
-        self._handle_cache(use_cache, cache_file, self.use_ops)
+        self._setup_cache(use_cache, cache_file, self.use_ops)
 
         s_in, r_in, s_out, v_out = self.convert_stacks(in_stack, in_rstack, out_stack, out_vars)
         self.s_in = s_in
