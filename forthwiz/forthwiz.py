@@ -134,9 +134,10 @@ class Wizard:
             cache.cache_filename = get_cache_filename(ops)
             cache.read()
 
-    def solve(self, in_stack, out_stack, use_cache=True, use_pick=True,
-              cache_file=None, convert=True, target=None,
-              in_rstack=None, out_vars=None, use_rstack=False):
+    def solve1(self, in_stack, out_stack, use_cache=True, use_pick=True,
+               cache_file=None, convert=True, target=None,
+               in_rstack=None, out_vars=None, use_rstack=False):
+        """setup and solve solve for 1 solution"""
         self.setup(in_stack, out_stack, use_cache=use_cache, use_pick=use_pick,
                    cache_file=cache_file, convert=convert, target=target,
                    in_rstack=in_rstack, out_vars=out_vars, use_rstack=use_rstack)
@@ -172,7 +173,7 @@ class Wizard:
         wizard.set_vars_out(v_out)
         wizard.use_rstack(use_rstack)
 
-    def _solve(self):
+    def solve(self):
 
         key = make_cache_key(self.s_in, self.r_in, self.s_out, self.v_out,
                              self.use_pick, self.use_rstack)
