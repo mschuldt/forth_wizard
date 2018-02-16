@@ -137,48 +137,67 @@ class Wizard:
     def solve(self, in_stack, out_stack, use_cache=True, use_pick=True,
               cache_file=None, convert=True, target=None,
               in_rstack=None, out_vars=None, use_rstack=False):
-        solution = self._solve(in_stack, out_stack, use_cache=use_cache, use_pick=use_pick,
-                               cache_file=cache_file, convert=convert, target=target,
-                               in_rstack=in_rstack, out_vars=out_vars, use_rstack=use_rstack)
+        self.setup(in_stack, out_stack, use_cache=use_cache, use_pick=use_pick,
+                   cache_file=cache_file, convert=convert, target=target,
+                   in_rstack=in_rstack, out_vars=out_vars, use_rstack=use_rstack)
+        solution = self._solve()
         if out_vars is None:
             return solution.code
         return solution
 
-    def _solve(self, in_stack, out_stack, use_cache=True, use_pick=True,
-              cache_file=None, convert=True, target=None,
-              in_rstack=None, out_vars=None, use_rstack=False):
+    def setup(self, in_stack, out_stack, use_cache=True, use_pick=True,
+               cache_file=None, convert=True, target=None,
+               in_rstack=None, out_vars=None, use_rstack=False):
         if use_rstack:
             assert out_vars, "setting use_rstack without specifying out_vars"
         self.n_ops = 0
         if out_vars is None:
             out_vars = list(set(out_stack))
-        use_ops = _choose_ops(use_pick, target)
-        self._handle_cache(use_cache, cache_file, use_ops)
+        self.use_ops = _choose_ops(use_pick, target)
+        self._handle_cache(use_cache, cache_file, self.use_ops)
+
         s_in, r_in, s_out, v_out = self.convert_stacks(in_stack, in_rstack, out_stack, out_vars)
-        key = make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack)
-
-        if use_cache:
-            solution = self.get_cached_solution(key, convert)
-            if solution:
-                return solution
-
+        self.s_in = s_in
+        self.r_in = r_in
+        self.s_out = s_out
+        self.v_out = v_out
+        self.use_pick = use_pick
+        self.use_rstack = use_rstack
+        self.use_cache = use_cache
+        self.convert = convert
         wizard.init()
         wizard.set_stack_in(s_in)
         wizard.set_rstack_in(r_in)
         wizard.set_stack_out(s_out)
         wizard.set_vars_out(v_out)
         wizard.use_rstack(use_rstack)
-        code, cache_code = self.find_solution(use_ops)
+
+    def _solve(self):
+
+        key = make_cache_key(self.s_in, self.r_in, self.s_out, self.v_out,
+                             self.use_pick, self.use_rstack)
+
+        if self.use_cache:
+            solution = self.get_cached_solution(key, self.convert)
+            if solution:
+                self.s_in = solution.stack
+                self.r_in = solution.rstack
+                return solution
+
+        code, cache_code = self.find_solution(self.use_ops)
         solution_stack = wizard.get_stack()
         solution_rstack = wizard.get_return_stack()
-        stacks = self.convert_stacks_back(solution_stack, solution_rstack)
-        if not code or not use_cache:
-            ret_code = code if convert else cache_code
-            return Solution(ret_code, stacks[0], stacks[1])
+        c_stacks = self.convert_stacks_back(solution_stack, solution_rstack)
+        if not code or not self.use_cache:
+            ret_code = code if self.convert else cache_code
+            return Solution(ret_code, c_stacks[0], c_stacks[1])
+
+        self.s_in = solution_stack
+        self.r_in = solution_rstack
 
         self.cache.save(key, cache_code, solution_stack, solution_rstack)
-        ret_code = code if convert else cache_code
-        return Solution(ret_code, stacks[0], stacks[1])
+        ret_code = code if self.convert else cache_code
+        return Solution(ret_code, c_stacks[0], c_stacks[1])
 
     def get_cached_solution(self, key, convert):
         solution = self.cache.get(key)
