@@ -78,7 +78,7 @@ class Wizard:
     def add_ops(self, x):
         self.n_ops += len(x)
         for o in x:
-            if o not in x:
+            if o not in ops:
                 raise Exception("Unsupported op '{}'".format(o))
             wizard.add_op(ops.index(o))
 
