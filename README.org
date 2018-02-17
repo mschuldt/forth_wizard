@@ -1,50 +1,137 @@
 The Forth Wizard finds the shortest sequence of forth instructions needed for a given stack manipulation.
 
+In addition to simple stack transforms it allows for partial specification of the final
+stack state, usage of the return stack, and caching. All common forth instructions are supported.
+
+This was translated from the orignal [[http://sovietov.com/app/forthwiz.html][forth wizard]] and heavily extended.
 It is written in C and provides a Python3 module. Tested only on Ubuntu.
 
+* Installation
 Install from pypi with ~pip3 install forthwiz~,
 or download and run ~sudo ./make.sh~ to build and install. Requires package python3-dev to build.
 
-Usage:
+* Usage
+Instantiate a ~forthwiz.Wizard~ object and use the ~setup~ method to specify
+the machine state. This can include the initial and ending state of data stack,
+initial state of return stack, and options for caching, supported ops, and return stack usage.
+The stack states are specified with lists, the items in those lists may be any hashable type.
 #+BEGIN_SRC python
   $ python3
   >>> import forthwiz
   >>> wiz = forthwiz.Wizard()
-  >>> wiz.solve( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> wiz.setup( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> solution = wiz.solve()
+  >>> solution.code
   ['swap', 'dup']
 #+END_SRC
-~solve~ takes two lists describing the input and output states of the data stack.
-The items in those lists may be any hashable type.
 
-Use of the =pick= instruction may be disabled:
+* Multiple solutions
+~Wizard.solve~ may be called multiple times to generate alternative solutions:
 #+BEGIN_SRC python
-  >>> wiz.solve([0, 1, 2], [0, 2, 0, 1])
-  ['2', 'pick', 'rot']
-  >>> wiz.solve([0, 1, 2], [0, 2, 0, 1], use_pick=False)
-  ['swap', '>r', 'over', 'r>']
-#+END_SRC
-
-To get multiple solutions specify the input and output stacks with ~set_stacks~
-and use ~solve_next~ to get the next solution in the sequence:
-#+BEGIN_SRC python
-  >>> wiz.set_stacks( ['a', 'b'], ['b', 'a', 'a'] )
-  >>> wiz.solve_next()
+  >>> wiz.setup( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> solution = wiz.solve(); solution.code
   ['swap', 'dup']
-  >>> wiz.solve_next()
+  >>> solution = wiz.solve(); solution.code
   ['over', 'rot']
-  >>> wiz.solve_next()
+  >>> solution = wiz.solve(); solution.code
   ['swap', '2dup', 'nip']
 #+END_SRC
 
-By default calls to ~solve~ will cache the results in the file =forth_wizard_cache.txt=
-To disable caching set the optional parameter ~use_cache~ to False.
-~solve_next~ does not utilize the cache.
+* Partial stack usage
+The =out_vars= parameter can be used to specify symbols that must remain
+in the final machine state. When ~out_vars~ is set
+the =out_stack= parameter only specifies the top values
+that are expected on the stack. Symbols in =out_vars= that are not in =out_stack=
+may be included in the bottom portion of the data stack in any order. This may yield
+shorter solutions when only the top ordering matters.
+The final data stack value is saved as the =Solution.stack= attribute.
+#+BEGIN_SRC python
+  >>> wiz.setup( [1, 2, 3, 4, 5], [1], out_vars=[1, 2, 3, 5] )
+  >>> solution = wiz.solve()
+  >>> solution.code
+  ['nip', '2swap', 'swap']
+  >>> solution.stack
+  [3, 5, 2, 1]
+#+END_SRC
 
+* Using the return stack
+The =use_rstack= parameter tells the solver that it is ok to leave values on the
+return stack. When it is set values that appear in =out_vars= that are not present
+in =out_stack= may be left on the return stack in addition to the bottom of
+the data stack. This is disabled by default. The final state of the return stack
+is saved as the ~Solution.rstack~ attribute.
+#+BEGIN_SRC python
+  >>> wiz.setup( [1, 2, 3, 4, 5], [1], out_vars=[1, 2, 3, 5], use_rstack=True )
+  >>> solution = wiz.solve()
+  >>> solution.code
+  ['>r', 'drop', 'rot']
+  >>> solution.stack
+  [2, 3, 1]
+  >>> solution.rstack
+  [5]
+#+END_SRC
 
-See =example.py=, =example.c=, and =test.py= for more usage examples.
+=in_rstack= can be used to specify the starting state of the return stack.
 
+* Finding all solutions
+Use the ~Wizard.solutions~ to find all the solutions of the minimal length.
+#+BEGIN_SRC python
+  >>> wiz.setup( [1, 2], [2, 1, 1] )
+  >>> solution = wiz.solutions()
+  >>> [s.code for s in solution]
+  [['swap', 'dup'], ['over', 'rot']]
+#+END_SRC
+Subsequent calls to ~Wizard.solutions~ gives the collection of the next
+longest solution length.
 
-Supported instructions: dup drop swap over rot >r r> 2dup 2drop 2swap 2over 2rot nip tuck -rot r@ 2>r 2r> 2r@ pick
+~Wizard.solve_many~ can be used to find all solutions under a given length.
 
+* Forth ops
+The forth ops the solver will use to find the solution can be set with the =ops=
+parameter. Specify the op ~N pick~ with ~Npick~, currently supported for N=[2,5].
+For example, duplicating top of stack without =dup=:
+#+BEGIN_SRC python
+  >>> wiz.setup( ['A', 'B'], ['A', 'B', 'B'], ops=['swap', 'r>', 'over', '>r', 'r@'] )
+  >>> solution = wiz.solve(); solution.code
+  >>> ['>r', 'r@', 'r>']
+#+END_SRC
 
-Originally translated from: http://sovietov.com/app/forthwiz.html
+Predefined collections of ops supported by common forth interpreters can be set
+using the =target= parameter. Currently supported targets are gforth and amforth.
+#+BEGIN_SRC python
+  >>> wiz.setup( ['a', 'b','c','d'], ['a', 'b','c','d','a','b'], target='gforth' )
+  >>> solution = wiz.solve(); solution.code
+  ['2over']
+  >>> wiz.setup( ['a', 'b','c','d'], ['a', 'b','c','d','a','b'], target='amforth' )
+  >>> solution = wiz.solve(); solution.code
+  ['2>r', '2dup', '2r>', '2swap']
+#+END_SRC
+
+* Caching
+By default calls to ~solve~ will cache the solution.
+To disable caching set the optional ~setup~ parameter ~use_cache~ to False.
+
+A different cache file is used for each solver version and collection of
+ops used to find the solution, for example =wizard_cache_1_2_7ffff.txt=.
+
+* Disabling the pick instruction
+Use of the =pick= instruction may be disabled with the =use_pick= option:
+#+BEGIN_SRC python
+  >>> wiz.setup([0, 1, 2], [0, 2, 0, 1])
+  >>> solution = wiz.solve(); solution
+  ['2', 'pick', 'rot']
+  >>> wiz.setup([0, 1, 2], [0, 2, 0, 1], use_pick=False)
+  >>> solution = wiz.solve(); solution
+  ['swap', '>r', 'over', 'r>']
+#+END_SRC
+
+* forthwiz.solve_stacks
+~forthwiz.solve_stacks~ is a convenience function supporting only basic usage. It takes
+two lists describing the input and output states of the data stack and a subset
+of the options available to =Wizard.setup=
+
+#+BEGIN_SRC python
+  >>> import forthwiz
+  >>> forthwiz.solve_stacks( ['a', 'b'], ['b', 'a', 'a'] )
+  ['swap', 'dup']
+#+END_SRC
