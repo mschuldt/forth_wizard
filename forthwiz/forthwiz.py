@@ -19,7 +19,8 @@ def count_drop_nip(code):
 
 class Solution:
     def __init__(self, code, stack, rstack, use_pick):
-        self.code, self.stack, self.rstack, self.use_pick = code, stack, rstack, use_pick
+        self.code, self.stack, self.rstack, self.use_pick \
+            = code, stack, rstack, use_pick
         self.unconverted_code = code
 
 class Wizard:
@@ -83,14 +84,14 @@ class Wizard:
     def add_none_pick_ops(self): self.add_ops(not_pick_ops)
     def add_all_ops(self):       self.add_ops(ops)
 
-
     def find_solution(self):
         # find solution without pick
         wizard.reset_ops()
         wizard.save_state(0)
         self.add_ops(self.ops_without_pick)
         without_pick = self.solve_next()
-        wizard.save_state(1) #TODO: need to revisit which state to restore to when maybe using pick
+        #TODO: need to revisit which state to restore to when maybe using pick
+        wizard.save_state(1)
         c_without_pick = convert_code(without_pick)
         if not self.ops_with_pick:
             return c_without_pick, without_pick
@@ -126,8 +127,8 @@ class Wizard:
             cache.read()
 
     def setup(self, in_stack, out_stack, use_cache=True, use_pick=True,
-               cache_file=None, convert=True, target=None, ops=None,
-               in_rstack=None, out_vars=None, use_rstack=False):
+              cache_file=None, convert=True, target=None, ops=None,
+              in_rstack=None, out_vars=None, use_rstack=False):
         """
         Setup the solver state and options.
         parameters:
@@ -164,7 +165,8 @@ class Wizard:
         use_ops = self.setup_ops(use_pick, target=target, op_list=ops)
         self._setup_cache(use_cache, cache_file, use_ops)
 
-        s_in, r_in, s_out, v_out = self.convert_stacks(in_stack, in_rstack, out_stack, out_vars)
+        s_in, r_in, s_out, v_out = \
+            self.convert_stacks(in_stack, in_rstack, out_stack, out_vars)
         self.s_in = s_in
         self.r_in = r_in
         self.s_out = s_out
@@ -187,13 +189,18 @@ class Wizard:
         self.solution_counter += 1
         if self.use_cache:
             key = make_cache_key(self.s_in, self.r_in, self.s_out, self.v_out,
-                                 self.use_pick, self.use_rstack, self.solution_counter)
+                                 self.use_pick, self.use_rstack,
+                                 self.solution_counter)
             solution = self.get_cached_solution(key, self.convert)
             if solution:
-                #setup solver state for next call as if it had found the solution
+                #setup solver state for next call
+                #as if it had found the solution
                 wizard.reset_ops()
-                self.add_ops(self.ops_with_pick if solution.use_pick else self.ops_without_pick)
-                wizard.set_next_code([ops.index(o) for o in solution.unconverted_code])
+                self.add_ops(self.ops_with_pick
+                             if solution.use_pick
+                             else self.ops_without_pick)
+                wizard.set_next_code([ops.index(o)
+                                      for o in solution.unconverted_code])
                 return solution
 
         code, cache_code = self.find_solution()
@@ -297,7 +304,8 @@ class Cache:
                 k,v = line.split('=')
                 code, stack, rstack = v.split('&')
                 use_pick = True if k.split('-1')[0] == -2 else False
-                s = Solution(code.split(), read_elts(stack), read_elts(rstack), use_pick)
+                s = Solution(code.split(), read_elts(stack),
+                             read_elts(rstack), use_pick)
                 self.cache[tuple(map(int, k.split()))] = s
         self.current_cache_filename = self.cache_filename
 
