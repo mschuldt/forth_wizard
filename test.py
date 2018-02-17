@@ -3,6 +3,7 @@
 from test_helpers import *
 
 def runtests():
+    assert forthwiz.solve_stacks([1,2],[1,2,2]) == ['dup']
     test(['a', 'b'], ['a', 'b', 'b'], ['dup'])
     test(['t1', 't2'], ['t1'], ['drop'])
     test([1, 2], [ 2, 1], ['swap'])
