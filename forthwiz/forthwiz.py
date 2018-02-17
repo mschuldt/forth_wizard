@@ -132,7 +132,7 @@ class Wizard:
             cache.read()
 
     def setup(self, in_stack, out_stack, use_cache=True, use_pick=True,
-               cache_file=None, convert=True, target=None,
+               cache_file=None, convert=True, target=None, ops=None,
                in_rstack=None, out_vars=None, use_rstack=False):
         self.reset()
         if use_rstack:
@@ -140,7 +140,7 @@ class Wizard:
         self.n_ops = 0
         if out_vars is None:
             out_vars = list(set(out_stack))
-        use_ops = self.setup_ops(use_pick, target)
+        use_ops = self.setup_ops(use_pick, target=target, op_list=ops)
         self._setup_cache(use_cache, cache_file, use_ops)
 
         s_in, r_in, s_out, v_out = self.convert_stacks(in_stack, in_rstack, out_stack, out_vars)
@@ -195,7 +195,7 @@ class Wizard:
                 return solution
         return None
 
-    def setup_ops(self, use_pick, target):
+    def setup_ops(self, use_pick, target=None, op_list=None):
         if target:
             use_ops = target_ops.get(target)
             if not use_ops:
@@ -203,6 +203,8 @@ class Wizard:
             if not use_pick:
                 # remove pick ops
                 use_ops = [o for o in use_ops if o not in pick_ops]
+        elif op_list:
+            use_ops = op_list
         else:
             # if no target is specified, default to all ops
             use_ops = ops if use_pick else not_pick_ops
