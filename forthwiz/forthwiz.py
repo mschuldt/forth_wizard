@@ -20,18 +20,6 @@ class Solution:
     def __init__(self, code, stack, rstack):
         self.code, self.stack, self.rstack = code, stack, rstack
 
-def _choose_ops(use_pick, target):
-    if target:
-        use_ops = target_ops.get(target)
-        if not use_ops:
-            raise Exception("Unknown target:" + str(target))
-        if not use_pick:
-            # remove pick ops
-            use_ops = [o for o in use_ops if o not in pick_ops]
-    else:
-        # if no target is specified, default to all ops
-        use_ops = ops if use_pick else not_pick_ops
-    return use_ops
 
 class Wizard:
     def __init__(self):
@@ -94,22 +82,19 @@ class Wizard:
     def add_all_ops(self):       self.add_ops(ops)
 
 
-    def find_solution(self, ops):
-        ops_with_pick, ops_without_pick = [], []
-        for o in ops:
-            (ops_with_pick if o in pick_ops else ops_without_pick).append(o)
+    def find_solution(self):
         # find solution without pick
         wizard.reset_ops()
         wizard.save_state(0)
-        self.add_ops(ops_without_pick)
+        self.add_ops(self.ops_without_pick)
         without_pick = self.solve_next()
         wizard.save_state(1) #TODO: need to revisit which state to restore to when maybe using pick
         c_without_pick = convert_code(without_pick)
-        if not ops_with_pick or True:
+        if not self.ops_with_pick:
             return c_without_pick, without_pick
         # find solution with pick
         wizard.restore_state(0)
-        self.add_ops(ops_with_pick)
+        self.add_ops(self.ops_with_pick)
         with_pick = self.solve_next()
         c_with_pick = convert_code(with_pick)
         # Attempt to choose the 'best' solution
@@ -158,8 +143,8 @@ class Wizard:
         self.n_ops = 0
         if out_vars is None:
             out_vars = list(set(out_stack))
-        self.use_ops = _choose_ops(use_pick, target)
-        self._setup_cache(use_cache, cache_file, self.use_ops)
+        use_ops = self.setup_ops(use_pick, target)
+        self._setup_cache(use_cache, cache_file, use_ops)
 
         s_in, r_in, s_out, v_out = self.convert_stacks(in_stack, in_rstack, out_stack, out_vars)
         self.s_in = s_in
@@ -188,7 +173,7 @@ class Wizard:
                 self.r_in = solution.rstack
                 return solution
 
-        code, cache_code = self.find_solution(self.use_ops)
+        code, cache_code = self.find_solution()
         solution_stack = wizard.get_stack()
         solution_rstack = wizard.get_return_stack()
         c_stacks = self.convert_stacks_back(solution_stack, solution_rstack)
@@ -213,6 +198,26 @@ class Wizard:
                 solution.code = convert_code(solution.code)
                 return solution
         return None
+
+    def setup_ops(self, use_pick, target):
+        if target:
+            use_ops = target_ops.get(target)
+            if not use_ops:
+                raise Exception("Unknown target:" + str(target))
+            if not use_pick:
+                # remove pick ops
+                use_ops = [o for o in use_ops if o not in pick_ops]
+        else:
+            # if no target is specified, default to all ops
+            use_ops = ops if use_pick else not_pick_ops
+
+        ops_with_pick, ops_without_pick = [], []
+        for o in use_ops:
+            (ops_with_pick if o in pick_ops else ops_without_pick).append(o)
+        self.ops_with_pick = ops_with_pick
+        self.ops_without_pick = ops_without_pick
+        return use_ops
+
 
 def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack):
     sep = -1
