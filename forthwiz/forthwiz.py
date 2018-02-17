@@ -17,9 +17,8 @@ def count_drop_nip(code):
     return s
 
 class Solution:
-    def __init__(self, code, stack, rstack):
-        self.code, self.stack, self.rstack = code, stack, rstack
-
+    def __init__(self, code, stack, rstack, use_pick):
+        self.code, self.stack, self.rstack, self.use_pick = code, stack, rstack, use_pick
 
 class Wizard:
     def __init__(self):
@@ -177,13 +176,12 @@ class Wizard:
         c_stacks = self.convert_stacks_back(solution_stack, solution_rstack)
         if not code or not self.use_cache:
             ret_code = code if self.convert else cache_code
-            return Solution(ret_code, c_stacks[0], c_stacks[1])
-
+            return Solution(ret_code, c_stacks[0], c_stacks[1], self.use_pick)
 
         if self.use_cache:
             self.cache.save(key, cache_code, solution_stack, solution_rstack)
         ret_code = code if self.convert else cache_code
-        return Solution(ret_code, c_stacks[0], c_stacks[1])
+        return Solution(ret_code, c_stacks[0], c_stacks[1], self.use_pick)
 
     def get_cached_solution(self, key, convert):
         solution = self.cache.get(key)
@@ -245,7 +243,8 @@ class Cache:
             for line in f.readlines():
                 k,v = line.split('=')
                 code, stack, rstack = v.split('&')
-                s = Solution(code.split(), read_elts(stack), read_elts(rstack))
+                use_pick = True if k.split('-1')[0] == -2 else False
+                s = Solution(code.split(), read_elts(stack), read_elts(rstack), use_pick)
                 self.cache[tuple(map(int, k.split()))] = s
         self.current_cache_filename = self.cache_filename
 
