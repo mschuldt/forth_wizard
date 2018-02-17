@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#define N_CODE_REGS 3
+
 typedef struct Slice {
   char *data;
   int len;
@@ -24,6 +26,7 @@ Slice **stack_history;
 Slice **rstack_history;
 
 Slice *code;
+Slice **code_regs;
 Slice *solution;
 
 int max_code_length = 15;
@@ -623,6 +626,16 @@ void reset() {
   use_rstack = false;
 }
 
+void save_state(unsigned int i){
+  assert(i < N_CODE_REGS);
+  slice_copy(code_regs[i], code);
+}
+
+void restore_state(unsigned int i){
+  assert(i < N_CODE_REGS);
+  slice_copy(code, code_regs[i]);
+}
+
 void init() {
   if ( initialized ) {
     reset();
@@ -648,6 +661,10 @@ void init() {
   n_ops_used = 0;
 
   code = new_slice(max_code_length);
+  code_regs = (Slice**)calloc(sizeof(Slice*), N_CODE_REGS);
+  for(int i = 0; i < N_CODE_REGS; i++) {
+    code_regs[i] = new_slice(max_code_length);
+  }
   solution = new_slice(max_code_length);
   slice_push(code,0);
   initialized = true;

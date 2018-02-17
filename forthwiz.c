@@ -125,6 +125,18 @@ static PyObject* wiz_reset_ops(PyObject* self) {
   return Py_BuildValue("i", 0);
 }
 
+static PyObject* wiz_save_state(PyObject* self, PyObject* reg) {
+  int n = PyLong_AsLong(reg);
+  save_state(n);
+  return Py_BuildValue("i", 0);
+}
+
+static PyObject* wiz_restore_state(PyObject* self, PyObject* reg) {
+  int n = PyLong_AsLong(reg);
+  restore_state(n);
+  return Py_BuildValue("i", 0);
+}
+
 static PyObject* wiz_verify(PyObject* self) {
   bool ok = verify_code();
   return Py_BuildValue("i", ok);
@@ -153,6 +165,8 @@ static PyMethodDef wiz_methods[] = {{"init", (PyCFunction)wiz_init, METH_NOARGS,
                                     {"reset_ops", (PyCFunction)wiz_reset_ops, METH_NOARGS, todo_docs},
                                     {"verify", (PyCFunction)wiz_verify, METH_NOARGS, todo_docs},
                                     {"use_rstack", (PyCFunction)wiz_use_rstack, METH_O, todo_docs},
+                                    {"save_state", (PyCFunction)wiz_save_state, METH_O, todo_docs},
+                                    {"restore_state", (PyCFunction)wiz_restore_state, METH_O, todo_docs},
                                     {NULL, NULL, 0, NULL}
 };
 
