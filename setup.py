@@ -3,7 +3,7 @@
 from distutils.core import setup, Extension
 import sys
 
-version = '1.2' # also change in forthwiz.py
+version = '2.0' # also change in forthwiz.py
 
 assert not sys.version_info.major < 3, 'The forth wizard requires python3'
 
