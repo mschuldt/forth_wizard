@@ -60,12 +60,6 @@ class Wizard:
                 ret.append([])
         return ret
 
-    def set_stacks(self, in_stack, out_stack):
-        s_in, s_out = self.convert_stacks(in_stack, out_stack)
-        wizard.init()
-        wizard.set_stack_in(s_in)
-        wizard.set_stack_out(s_out)
-
     def solve_next(self):
         if self.n_ops == 0:
             self.add_all_ops()
