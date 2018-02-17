@@ -4,6 +4,7 @@ from .version import version
 from os import path
 
 def convert_code(code):
+    if code is None: return code
     ret = []
     for x in code:
         c = code_map.get(x)
