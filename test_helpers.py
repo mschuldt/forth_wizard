@@ -13,7 +13,7 @@ def cache_filename(target):
     cache_files.add(n)
     return n
 
-def check(note, result, expected, in_stack, out_stack, out_rstack):
+def check_solution(note, result, expected, in_stack, out_stack, out_rstack):
     if out_rstack is not None or True: # then result is type Solution
         # in this case out_stack represents the top items that
         # we expect on result.stack, so trimp the rsult stack to size
@@ -43,6 +43,20 @@ def check(note, result, expected, in_stack, out_stack, out_rstack):
         print('  got: ', result)
         exit(1)
 
+def nth(i, lst):
+    if lst:
+        return lst[i]
+    return []
+
+def check(note, wiz, expected, in_stack, out_stack, out_rstack):
+    if len(expected) > 0 and type(expected[0]) is list:
+        for i, exp in enumerate(expected):
+            result = wiz.solve()
+            out_r = nth(i, out_rstack)
+            check_solution(note + ", result {}".format(i), result, exp, in_stack, out_stack, out_r)
+    else:
+        check_solution(note, wiz.solve(), expected, in_stack, out_stack, out_rstack)
+
 def test(in_stack, out_stack, expected, use_pick=True, target=None, in_rstack=None,
          out_rstack=[], out_vars=None, use_rstack=False):
 
@@ -50,20 +64,17 @@ def test(in_stack, out_stack, expected, use_pick=True, target=None, in_rstack=No
     cache_name = cache_filename(target)
     wiz = forthwiz.Wizard()
     wiz.setup( in_stack, out_stack, use_cache=False, use_pick=use_pick,
-                        in_rstack=in_rstack, target=target, out_vars=out_vars,
-                        use_rstack=use_rstack )
-    result = wiz.solve()
-    check('no cache', result, expected, in_stack, out_stack, out_rstack)
+               in_rstack=in_rstack, target=target, out_vars=out_vars,
+               use_rstack=use_rstack )
+    check('no cache', wiz, expected, in_stack, out_stack, out_rstack)
     wiz.setup( in_stack, out_stack, use_cache=True, use_pick=use_pick,
                cache_file=cache_name, target=target, in_rstack=in_rstack,
                out_vars=out_vars, use_rstack=use_rstack)
-    result = wiz.solve()
-    check('with cache, 1st', result, expected, in_stack, out_stack, out_rstack)
+    check('with cache, 1st', wiz,  expected, in_stack, out_stack, out_rstack)
     wiz.setup( in_stack, out_stack, use_cache=True, use_pick=use_pick,
                cache_file=cache_name, target=target, in_rstack=in_rstack,
                out_vars=out_vars, use_rstack=use_rstack)
-    result = wiz.solve()
-    check('with cache, 2st', result, expected, in_stack, out_stack, out_rstack)
+    check('with cache, 2st', wiz, expected, in_stack, out_stack, out_rstack)
 
 def remove_old_cache_files():
     # remove cache files that may be present from a previous run
