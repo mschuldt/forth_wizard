@@ -176,10 +176,9 @@ class Wizard:
 
     def solve(self):
 
-        key = make_cache_key(self.s_in, self.r_in, self.s_out, self.v_out,
-                             self.use_pick, self.use_rstack)
-
         if self.use_cache:
+            key = make_cache_key(self.s_in, self.r_in, self.s_out, self.v_out,
+                                 self.use_pick, self.use_rstack)
             solution = self.get_cached_solution(key, self.convert)
             if solution:
                 self.s_in = solution.stack
@@ -197,7 +196,8 @@ class Wizard:
         self.s_in = solution_stack
         self.r_in = solution_rstack
 
-        self.cache.save(key, cache_code, solution_stack, solution_rstack)
+        if self.use_cache:
+            self.cache.save(key, cache_code, solution_stack, solution_rstack)
         ret_code = code if self.convert else cache_code
         return Solution(ret_code, c_stacks[0], c_stacks[1])
 
