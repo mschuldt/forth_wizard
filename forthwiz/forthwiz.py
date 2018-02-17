@@ -134,6 +134,33 @@ class Wizard:
     def setup(self, in_stack, out_stack, use_cache=True, use_pick=True,
                cache_file=None, convert=True, target=None, ops=None,
                in_rstack=None, out_vars=None, use_rstack=False):
+        """
+        Setup the solver state and options.
+        parameters:
+        in_stack - Initial data stack state.
+        out_stack - The vars that must be on the top of ending data stack.
+        use_cache - If False don't use the cache. Default True.
+        use_pick - If False don't use the pick instruction. Default True
+        cache_file - optionally specify the cache filename.
+        target - set the forth op collection to use when solving.
+                 supported targets are 'gforth' and 'amforth'
+        ops - a list of ops the solver may use when finding a solution.
+              Specify the op "N pick" with "Npick",
+              currently supported for N=[2,5].
+        in_rstack - specify the initial state of the return stack.
+        out_vars - the vars that must be on the data or return stack.
+                   If set the in_stack represents the top of the stack.
+                   vars that are in in_stack but not in out_stack can
+                   will be left at the bottom of the data stack in any order.
+        use_rstack - when True variables in out_vars that are not in
+                     out_stack may be left on the return stack instead
+                     of at the bottom of the data stack. Default False.
+
+        vars listed in in_stack, out_stack, in_rstack, and out_vars
+        can be of any hashable type.
+        All vars referenced by out_stack and out_vars must be present
+        in in_stack or in_rstack.
+        """
         self.reset()
         if use_rstack:
             assert out_vars, "setting use_rstack without specifying out_vars"
@@ -160,6 +187,9 @@ class Wizard:
         wizard.use_rstack(use_rstack)
 
     def solve(self):
+        """
+        Find the next solution. Returns type forthwiz.Solution
+        """
         self.solution_counter += 1
         if self.use_cache:
             key = make_cache_key(self.s_in, self.r_in, self.s_out, self.v_out,
