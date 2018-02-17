@@ -171,6 +171,10 @@ class Wizard:
                                  self.use_pick, self.use_rstack, self.solution_counter)
             solution = self.get_cached_solution(key, self.convert)
             if solution:
+                #setup solver state for next call as if it had found the solution
+                wizard.reset_ops()
+                self.add_ops(self.ops_with_pick if solution.use_pick else self.ops_without_pick)
+                wizard.set_next_code([ops.index(o) for o in solution.unconverted_code])
                 return solution
 
         code, cache_code = self.find_solution()
