@@ -23,6 +23,9 @@ class Solution:
 
 class Wizard:
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self.n_ops = 0 # ops added to solver
         self.symbols = {}
         self.symbol_counter = 0
@@ -127,6 +130,7 @@ class Wizard:
     def setup(self, in_stack, out_stack, use_cache=True, use_pick=True,
                cache_file=None, convert=True, target=None,
                in_rstack=None, out_vars=None, use_rstack=False):
+        self.reset()
         if use_rstack:
             assert out_vars, "setting use_rstack without specifying out_vars"
         self.n_ops = 0
@@ -144,7 +148,6 @@ class Wizard:
         self.use_rstack = use_rstack
         self.use_cache = use_cache
         self.convert = convert
-        self.solution_counter = 0
         wizard.init()
         wizard.set_stack_in(s_in)
         wizard.set_rstack_in(r_in)
