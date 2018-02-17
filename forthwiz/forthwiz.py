@@ -100,13 +100,15 @@ class Wizard:
             (ops_with_pick if o in pick_ops else ops_without_pick).append(o)
         # find solution without pick
         wizard.reset_ops()
+        wizard.save_state(0)
         self.add_ops(ops_without_pick)
         without_pick = self.solve_next()
+        wizard.save_state(1) #TODO: need to revisit which state to restore to when maybe using pick
         c_without_pick = convert_code(without_pick)
-        if not ops_with_pick:
+        if not ops_with_pick or True:
             return c_without_pick, without_pick
         # find solution with pick
-        wizard.reset_solver()
+        wizard.restore_state(0)
         self.add_ops(ops_with_pick)
         with_pick = self.solve_next()
         c_with_pick = convert_code(with_pick)
@@ -122,6 +124,7 @@ class Wizard:
             if count_drop_nip( c_without_pick ) >= c_with_pick.count('pick'):
                 return c_with_pick, with_pick
             # otherwise solutions are tied, don't use pick
+        wizard.restore_state(1)
         return c_without_pick, without_pick
 
     def _setup_cache(self, use_cache, cache_file, ops):
