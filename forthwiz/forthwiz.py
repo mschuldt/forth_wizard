@@ -200,6 +200,16 @@ class Wizard:
             if max_solutions and count == max_solutions:
                 return solutions
 
+    def solutions(self):
+        """
+        Find all solutions with the minimal code length.
+        """
+        s = self.solve()
+        if not s.code:
+            return None
+        n = len(s.code)
+        return [s] + self.solve_many(n)
+
     def get_cached_solution(self, key, convert):
         solution = self.cache.get(key)
         if solution:
