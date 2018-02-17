@@ -27,6 +27,7 @@ class Wizard:
         self.symbols = {}
         self.symbol_counter = 0
         self.cache = Cache()
+        self.solution_counter = 0
 
     def convert_stacks(self, *stacks):
         self.symbols.clear()
@@ -155,6 +156,7 @@ class Wizard:
         self.use_rstack = use_rstack
         self.use_cache = use_cache
         self.convert = convert
+        self.solution_counter = 0
         wizard.init()
         wizard.set_stack_in(s_in)
         wizard.set_rstack_in(r_in)
@@ -163,10 +165,10 @@ class Wizard:
         wizard.use_rstack(use_rstack)
 
     def solve(self):
-
+        self.solution_counter += 1
         if self.use_cache:
             key = make_cache_key(self.s_in, self.r_in, self.s_out, self.v_out,
-                                 self.use_pick, self.use_rstack)
+                                 self.use_pick, self.use_rstack, self.solution_counter)
             solution = self.get_cached_solution(key, self.convert)
             if solution:
                 return solution
@@ -214,11 +216,11 @@ class Wizard:
         return use_ops
 
 
-def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack):
+def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack, counter):
     sep = -1
     k = [-2 if use_pick else -3]
     use_r = [1 if use_rstack else 0]
-    for x in [s_in, r_in, s_out, v_out, use_r]:
+    for x in [s_in, r_in, s_out, v_out, use_r, [counter]]:
         k.append(sep)
         k.extend(x or [0])
     return tuple(k)
