@@ -185,6 +185,21 @@ class Wizard:
         ret_code = code if self.convert else cache_code
         return Solution(ret_code, c_stacks[0], c_stacks[1], self.use_pick)
 
+    def solve_many(self, n, max_solutions=None):
+        """
+        Find all solutions with length N.
+        MAX_SOLUTIONS can be used to limit the number of solutions found
+        """
+        solutions = []
+        count = 0
+        while True:
+            s = self.solve()
+            if s.code is None or len(s.code) > n:
+                return solutions
+            solutions.append(s)
+            if max_solutions and count == max_solutions:
+                return solutions
+
     def get_cached_solution(self, key, convert):
         solution = self.cache.get(key)
         if solution:
