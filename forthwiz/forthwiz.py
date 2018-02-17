@@ -1,7 +1,8 @@
 import chuckmoore as wizard
 from .ops import *
-from .version import version
 from os import path
+
+version = '1.2' # also change in setup.py
 
 def convert_code(code):
     if code is None: return code
