@@ -56,6 +56,13 @@ def runtests():
     test(a, out_top, ['2swap', '2drop', '-rot'],out_vars=out_vars, use_rstack=False, out_rstack=[])
     test(a, out_top, ['>r', 'nip', 'nip'], out_vars=out_vars, use_rstack=True, out_rstack=['i'])
     test([0], [0,1], ['r>'], in_rstack=[2,1], out_vars=[0,1,2], use_rstack=True, out_rstack=[2])
+    # test multiple solutions
+    test(['a', 'b'], ['a', 'b', 'b'], [['dup'],
+                                       ['2dup', 'nip'],
+                                       ['tuck', 'rot'],
+                                       ['swap', 'over', 'rot'],
+                                       ['over', 'over', 'nip'],
+                                       ['>r', 'r@', 'r>']])
 
 if __name__ == '__main__':
 
