@@ -32,6 +32,7 @@ class Wizard:
         self.symbol_counter = 0
         self.cache = Cache()
         self.solution_counter = 0
+        self.op_map = {} # maps numbers used by solver to op names
 
     def convert_stacks(self, *stacks):
         self.symbols.clear()
@@ -73,13 +74,15 @@ class Wizard:
             return []
         if code == -1:
             return None
-        return [ ops[ op ] for op in code ]
+        return [ self.op_map[ op ] for op in code ]
 
     def add_ops(self, x):
-        self.n_ops += len(x)
         for o in x:
             if o not in ops:
                 raise Exception("Unsupported op '{}'".format(o))
+            n = self.n_ops
+            self.op_map[n] = o
+            self.n_ops = n + 1
             wizard.add_op(ops.index(o))
 
     def add_pick_ops(self):      self.add_ops(pick_ops)
