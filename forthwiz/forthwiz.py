@@ -19,6 +19,7 @@ def count_drop_nip(code):
 class Solution:
     def __init__(self, code, stack, rstack, use_pick):
         self.code, self.stack, self.rstack, self.use_pick = code, stack, rstack, use_pick
+        self.unconverted_code = code
 
 class Wizard:
     def __init__(self):
