@@ -169,8 +169,6 @@ class Wizard:
                                  self.use_pick, self.use_rstack)
             solution = self.get_cached_solution(key, self.convert)
             if solution:
-                self.s_in = solution.stack
-                self.r_in = solution.rstack
                 return solution
 
         code, cache_code = self.find_solution()
@@ -181,8 +179,6 @@ class Wizard:
             ret_code = code if self.convert else cache_code
             return Solution(ret_code, c_stacks[0], c_stacks[1])
 
-        self.s_in = solution_stack
-        self.r_in = solution_rstack
 
         if self.use_cache:
             self.cache.save(key, cache_code, solution_stack, solution_rstack)
