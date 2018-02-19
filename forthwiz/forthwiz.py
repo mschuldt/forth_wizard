@@ -2,7 +2,7 @@ import chuckmoore as wizard
 from .ops import *
 from os import path
 
-version = '2.0' # also change in setup.py
+version = '2.1' # also change in setup.py
 
 def convert_code(code):
     if code is None: return code
