@@ -19,7 +19,7 @@ The stack states are specified with lists, the items in those lists may be any h
   $ python3
   >>> import forthwiz
   >>> wiz = forthwiz.Wizard()
-  >>> wiz.setup( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> wiz.setup( in_stack=['a', 'b'], out_stack=['b', 'a', 'a'] )
   >>> solution = wiz.solve()
   >>> solution.code
   ['swap', 'dup']
@@ -28,7 +28,7 @@ The stack states are specified with lists, the items in those lists may be any h
 * Multiple solutions
 ~Wizard.solve~ may be called multiple times to generate alternative solutions:
 #+BEGIN_SRC python
-  >>> wiz.setup( ['a', 'b'], ['b', 'a', 'a'] )
+  >>> wiz.setup( in_stack=['a', 'b'], out_stack=['b', 'a', 'a'] )
   >>> solution = wiz.solve(); solution.code
   ['swap', 'dup']
   >>> solution = wiz.solve(); solution.code
@@ -61,7 +61,8 @@ in =out_stack= may be left on the return stack in addition to the bottom of
 the data stack. This is disabled by default. The final state of the return stack
 is saved as the ~Solution.rstack~ attribute.
 #+BEGIN_SRC python
-  >>> wiz.setup( [1, 2, 3, 4, 5], [1], out_vars=[1, 2, 3, 5], use_rstack=True )
+  >>> wiz.setup( in_stack=[1, 2, 3, 4, 5], out_stack=[1],
+                 out_vars=[1, 2, 3, 5], use_rstack=True )
   >>> solution = wiz.solve()
   >>> solution.code
   ['>r', 'drop', 'rot']
@@ -76,7 +77,7 @@ is saved as the ~Solution.rstack~ attribute.
 * Finding all solutions
 Use the ~Wizard.solutions~ to find all the solutions of the minimal length.
 #+BEGIN_SRC python
-  >>> wiz.setup( [1, 2], [2, 1, 1] )
+  >>> wiz.setup( in_stack=[1, 2], out_stack=[2, 1, 1] )
   >>> solution = wiz.solutions()
   >>> [s.code for s in solution]
   [['swap', 'dup'], ['over', 'rot']]
@@ -91,7 +92,8 @@ The forth ops the solver will use to find the solution can be set with the =ops=
 parameter. Specify the op ~N pick~ with ~Npick~, currently supported for N=[2,5].
 For example, duplicating top of stack without =dup=:
 #+BEGIN_SRC python
-  >>> wiz.setup( ['A', 'B'], ['A', 'B', 'B'], ops=['swap', 'r>', 'over', '>r', 'r@'] )
+  >>> wiz.setup( in_stack=['A', 'B'], out_stack=['A', 'B', 'B'],
+                 ops=['swap', 'r>', 'over', '>r', 'r@'] )
   >>> solution = wiz.solve(); solution.code
   >>> ['>r', 'r@', 'r>']
 #+END_SRC
@@ -99,10 +101,12 @@ For example, duplicating top of stack without =dup=:
 Predefined collections of ops supported by common forth interpreters can be set
 using the =target= parameter. Currently supported targets are gforth and amforth.
 #+BEGIN_SRC python
-  >>> wiz.setup( ['a', 'b','c','d'], ['a', 'b','c','d','a','b'], target='gforth' )
+  >>> wiz.setup( in_stack=['a', 'b','c','d'], out_stack=['a', 'b','c','d','a','b'],
+                 target='gforth' )
   >>> solution = wiz.solve(); solution.code
   ['2over']
-  >>> wiz.setup( ['a', 'b','c','d'], ['a', 'b','c','d','a','b'], target='amforth' )
+  >>> wiz.setup( in_stack=['a', 'b','c','d'], out_stack=['a', 'b','c','d','a','b'],
+                 target='amforth' )
   >>> solution = wiz.solve(); solution.code
   ['2>r', '2dup', '2r>', '2swap']
 #+END_SRC
@@ -117,10 +121,11 @@ ops used to find the solution, for example =wizard_cache_1_2_7ffff.txt=.
 * Disabling the pick instruction
 Use of the =pick= instruction may be disabled with the =use_pick= option:
 #+BEGIN_SRC python
-  >>> wiz.setup([0, 1, 2], [0, 2, 0, 1])
+  >>> wiz.setup( in_stack=[0, 1, 2], out_stack=[0, 2, 0, 1] )
   >>> solution = wiz.solve(); solution
   ['2', 'pick', 'rot']
-  >>> wiz.setup([0, 1, 2], [0, 2, 0, 1], use_pick=False)
+  >>> wiz.setup( in_stack=[0, 1, 2], out_stack=[0, 2, 0, 1],
+                 use_pick=False )
   >>> solution = wiz.solve(); solution
   ['swap', '>r', 'over', 'r>']
 #+END_SRC
