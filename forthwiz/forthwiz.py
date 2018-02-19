@@ -280,7 +280,8 @@ def make_cache_key(s_in, r_in, s_out, v_out, use_pick, use_rstack, counter):
     use_r = [1 if use_rstack else 0]
     for x in [s_in, r_in, s_out, v_out, use_r, [counter]]:
         k.append(sep)
-        k.extend(x or [0])
+        if x:
+            k.extend(x)
     return tuple(k)
 
 def get_cache_filename(used_ops):
