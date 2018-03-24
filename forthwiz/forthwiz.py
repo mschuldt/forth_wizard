@@ -288,7 +288,7 @@ def get_cache_filename(used_ops):
     base = 'wizard_cache_{}_{}.txt'
     v_str = version.replace(".", "_")
     op_str = "".join([ '1' if op in used_ops else '0' for op in used_ops])
-    return base.format(v_str, hex(int('0b'+op_str,2))[2:])
+    return base.format(v_str, hex(int('0b1'+op_str,2))[2:])
 
 class Cache:
     def __init__(self):
