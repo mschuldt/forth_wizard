@@ -48,7 +48,8 @@ int slice_equal(Slice *in, Slice *out) {
   if (len != out->len){
     return false;
   }
-  for (int i=0; i<len; i++){
+  int i;
+  for (i=0; i<len; i++){
     if (in->data[i] != out->data[i]){
       return false;
     }
@@ -67,7 +68,8 @@ int slice_post_equal(Slice *slice, Slice *post) {
   if (post_end > slice_end){
     return false;
   }
-  for (int i=post_end; i>=0; i--){
+  int i;
+  for (i=post_end; i>=0; i--){
     if (slice->data[slice_end-i] != post->data[post_end-i]){
       return false;
     }
@@ -78,7 +80,8 @@ int slice_post_equal(Slice *slice, Slice *post) {
 Slice* slice_clone(Slice *in) {
   Slice *s = new_slice(in->cap);
   int len = in->len;
-  for(int i = 0; i < len; i++){
+  int i;
+  for(i = 0; i < len; i++){
     s->data[i] = in->data[i];
   }
   s->len = len;
@@ -89,7 +92,8 @@ void slice_copy(Slice *to, Slice *from) {
   assert( from->len <= to->cap && "destination slice is too small" );
   int len = from->len;
   to->len = len;
-  for(int i = 0; i < len; i++){
+  int i;
+  for(i = 0; i < len; i++){
     to->data[i] = from->data[i];
   }
 }
@@ -118,11 +122,12 @@ static inline int rpick(int i) { return rstack->data[rstack->len - i ]; }
 static inline void push(int v) { slice_push(stack, v); }
 static inline void rpush(int v) { slice_push(rstack, v); }
 
-static inline int pop() { return slice_pop(stack); }
-static inline int rpop() { return slice_pop(rstack); }
+static inline int pop(void) { return slice_pop(stack); }
+static inline int rpop(void) { return slice_pop(rstack); }
 
 bool member(char *s, unsigned int len, char n) {
-  for(int i = 0; i < len; i++) {
+  int i;
+  for(i = 0; i < len; i++) {
     if( s[i] == n) {
       return true;
     }
@@ -136,7 +141,8 @@ static inline bool slice_member(Slice* s, char n) {
 
 void unshift( Slice *s, char v ) {
   assert( s->len < s->cap && "unshift: no room");
-  for( int i=s->len-1; i >= 0; i--) {
+  int i;
+  for(i=s->len-1; i >= 0; i--) {
     s->data[i+1] = s->data[i];
   }
   s->data[0] = v;
@@ -144,13 +150,14 @@ void unshift( Slice *s, char v ) {
 }
 
 void slice_print( Slice *s ) {
-  for (int i=0; i < s->len; i ++){
+  int i;
+  for (i=0; i < s->len; i ++){
     printf("%d ", s->data[i]);
   }
   printf("\n");
 }
 
-bool check_symbols();
+bool check_symbols(void);
 
 #define CHECK_SYMS if (!check_symbols()) return false
 
@@ -392,9 +399,9 @@ Op ops[] = { { dup_, "dup" },
 typedef bool (*op_fn_t)(void);
 op_fn_t *_ops;
 
-char n_ops_used;
+int n_ops_used;
 
-bool add_op(char op) {
+bool add_op(int op) {
   if (op > max_ops) {
     printf("Error: invalid op: %d\n", op);
     exit(1);
@@ -404,7 +411,7 @@ bool add_op(char op) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void next() {
+void next(void) {
   int i = code->len - 1;
   int max = n_ops_used - 1;
 
@@ -422,14 +429,15 @@ void next() {
 
 void skip_code(int n) {
   int max = n_ops_used - 1;
-
-  for (int i=n+1; i < code->len; i++) {
+  int i;
+  for (i=n+1; i < code->len; i++) {
     code->data[i] = max;
   }
 }
 
-void validate_stacks() {
-  for(int i = 0; i < stack_out->len; i++ ) {
+void validate_stacks(void) {
+  int i;
+  for(i = 0; i < stack_out->len; i++ ) {
     if ( !slice_member(stack_in, stack_out->data[i] )
          || !slice_member(rstack_in, stack_out->data[i] )) {
       printf("ERROR: output stack value not present in input stacks\n");
@@ -441,7 +449,8 @@ void validate_stacks() {
 // check that all symbols are present in at least one of the stacks
 bool check_symbols()
 {
-  for (int i = 0; i < vars_out->len; i++) {
+  int i;
+  for (i = 0; i < vars_out->len; i++) {
     if(!slice_member(stack, vars_out->data[i])
        && !slice_member(rstack, vars_out->data[i]))
       return false;
@@ -453,7 +462,8 @@ bool noop(int n) {
   if(slice_equal(stack, stack_in) && slice_equal(rstack, rstack_in)){
     return true;
   }
-  for ( int i=0; i < n; i++ ){
+  int i;
+  for (i=0; i < n; i++ ){
     if(slice_equal(stack_history[i], stack) && slice_equal(rstack_history[i], rstack))
       return true;
   }
@@ -461,14 +471,15 @@ bool noop(int n) {
 }
 
 static inline bool
-check_stack_repeats(){
+check_stack_repeats(void){
   // check that symbols below stack_out values are not repeats
   // of values in stack_out
   int end = stack_out->len;
   int len = stack->len;
-  for (int i = 0; i < end; i++){ // for item in bottom portion
+  int i, j;
+  for (i = 0; i < end; i++){ // for item in bottom portion
     int sym = stack->data[i];
-    for (int j=end; j<len; j++ ){ // for item in top portion
+    for (j=end; j<len; j++ ){ // for item in top portion
       if (sym == stack->data[j]){
         return false;
       }
@@ -478,15 +489,16 @@ check_stack_repeats(){
 }
 
 static inline bool
-check_extra_vars(){
+check_extra_vars(void){
   // check that only values present in vars_out
   // are present in the stacks
-  for (int i=0; i<stack->len; i++){
+  int i;
+  for (i=0; i<stack->len; i++){
     if (!slice_member(vars_out, stack->data[i])){
       return false;
     }
   }
-  for (int i=0; i<rstack->len; i++){
+  for (i=0; i<rstack->len; i++){
     if (!slice_member(vars_out, rstack->data[i])){
       return false;
     }
@@ -495,14 +507,15 @@ check_extra_vars(){
 }
 
 static inline bool
-check_rstack_repeats(){
+check_rstack_repeats(void){
   // check that all symbols present in the rstack are
   // not repeated on the data stack
   int len = rstack->len;
   if( !use_rstack && len != 0 ) {
     return false;
   }
-  for(int i=0; i<len; i++){
+  int i;
+  for(i=0; i<len; i++){
     if (slice_member(stack, rstack->data[i])){
       return false;
     }
@@ -510,12 +523,12 @@ check_rstack_repeats(){
   return true;
 }
 
-bool verify_code() {
+bool verify_code(void) {
   slice_copy(stack, stack_in);
   slice_copy(rstack, rstack_in);
-
-  for(int i = 0; i < code->len; i++) {
-    if( !_ops[code->data[i]]()
+  int i;
+  for(i = 0; i < code->len; i++) {
+    if( !_ops[(int)(code->data[i])]()
         || noop(i) ){
       skip_code(i);
       return false;
@@ -532,21 +545,22 @@ bool verify_code() {
   return false;
 }
 
-void add_all_ops() {
-  char op=0;
+void add_all_ops(void) {
+  int op=0;
   while (ops[op].fn != NULL) {
     add_op(op++);
   }
 }
 
-void print_solution() {
-  for( int i=0; i< solution->len; i++){
-    printf("%s ", ops[(char)solution->data[i]].name);
+void print_solution(void) {
+  int i;
+  for(i=0; i< solution->len; i++){
+    printf("%s ", ops[(int)(solution->data[i])].name);
   }
   printf("\n");
 }
 
-bool solve_next() {
+bool solve_next(void) {
   if (!n_ops_used){
     printf("Error: calling solve before adding ops\n");
     exit(1);
@@ -568,7 +582,7 @@ bool solve_next() {
   return false;
 }
 
-void count_ops() {
+void count_ops(void) {
   max_ops=0;
   while (ops[max_ops].fn != NULL) {
     max_ops++;
@@ -580,8 +594,8 @@ void set_stack_size(int n){
 }
 
 void set_stack_in( int *values, int len ) {
-
-  for (int i = 0; i < len; i++) {
+  int i;
+  for (i = 0; i < len; i++) {
     slice_push(stack_in, values[i]);
   }
   //printf("in stack\n");
@@ -589,15 +603,15 @@ void set_stack_in( int *values, int len ) {
 }
 
 void set_rstack_in( int *values, int len ) {
-
-  for (int i = 0; i < len; i++) {
+  int i;
+  for (i = 0; i < len; i++) {
     slice_push(rstack_in, values[i]);
   }
 }
 
 void set_stack_out( int *values, int len ) {
-
-  for (int i = 0; i < len; i++) {
+  int i;
+  for (i = 0; i < len; i++) {
     slice_push(stack_out, values[i]);
   }
   validate_stacks();
@@ -607,17 +621,17 @@ void set_stack_out( int *values, int len ) {
 
 bool initialized = false;
 
-void reset_ops() {
+void reset_ops(void) {
   n_ops_used = 0;
 }
 
-void reset_solver() {
+void reset_solver(void) {
      slice_clear(code);
      slice_push(code,0);
      slice_clear(solution);
 }
 
-void reset() {
+void reset(void) {
   reset_solver();
   slice_clear(stack_in);
   slice_clear(rstack_in);
@@ -636,7 +650,7 @@ void restore_state(unsigned int i){
   slice_copy(code, code_regs[i]);
 }
 
-void init() {
+void init(void) {
   if ( initialized ) {
     reset();
     return;
@@ -651,7 +665,8 @@ void init() {
   vars_out = new_slice(stack_size);
   stack_history = (Slice**)calloc(sizeof(Slice*), max_code_length);
   rstack_history = (Slice**)calloc(sizeof(Slice*), max_code_length);
-  for(int i = 0; i < max_code_length; i++) {
+  int i;
+  for(i = 0; i < max_code_length; i++) {
       stack_history[i] = new_slice(stack_size);
       rstack_history[i] = new_slice(stack_size);
   }
@@ -662,7 +677,7 @@ void init() {
 
   code = new_slice(max_code_length);
   code_regs = (Slice**)calloc(sizeof(Slice*), N_CODE_REGS);
-  for(int i = 0; i < N_CODE_REGS; i++) {
+  for(i = 0; i < N_CODE_REGS; i++) {
     code_regs[i] = new_slice(max_code_length);
   }
   solution = new_slice(max_code_length);
@@ -671,7 +686,7 @@ void init() {
   use_rstack = false;
 }
 
-bool solve() {
+bool solve(void) {
   if (!solve_next()) {
     return false;
   }

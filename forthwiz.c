@@ -9,7 +9,8 @@ static PyObject* wiz_set_stack_size(PyObject* self, PyObject* size) {
 static void copy_to_slice(PyObject *tuple, Slice *slice) {
   long len = PyList_Size(tuple);
   slice_clear(slice);
-  for(int i = 0; i < len; i++){
+  int i;
+  for(i = 0; i < len; i++){
     slice_push(slice, (char) PyLong_AsLong(PyList_GetItem(tuple, i)));
   }
 }
